@@ -99,9 +99,9 @@ function generatePJP() {
 
     showMessage('Generating PJP...', 'processing');
     
-    processExcelCSV(file).then(storeData => {
+    processExcelCSV(file).then(routeData => {
         const [year, month] = monthInput.split('-');
-        const pjpData = generatePJPData(storeData, parseInt(year), parseInt(month));
+        const pjpData = generatePJPData(routeData, parseInt(year), parseInt(month));
         
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(pjpData);
@@ -114,45 +114,129 @@ function generatePJP() {
     });
 }
 
-function generatePJPData(storeData, year, month) {
+function generatePJPData(routeData, year, month) {
     const daysInMonth = new Date(year, month, 0).getDate();
     const pjpData = [];
-    const stores = extractStores(storeData);
+    const routes = extractRoutes(routeData);
+    const usedRoutes = [];
+    
+    let currentRouteIndex = -1;
     
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month - 1, day);
         const dayOfWeek = date.getDay();
+        const dateStr = formatDate(date);
         
         if (dayOfWeek === 0) { // Sunday
-            pjpData.push({
-                'Date': date.toLocaleDateString(),
+            // Create empty row for Sunday with Week Off
+            const sundayRow = {
+                'Date': dateStr,
                 'Day': 'Sunday',
-                'Store': 'Week Off',
-                'Remarks': 'Weekly Off'
-            });
-        } else {
-            const randomStore = stores[Math.floor(Math.random() * stores.length)];
-            pjpData.push({
-                'Date': date.toLocaleDateString(),
-                'Day': getDayName(dayOfWeek),
-                'Store': randomStore,
-                'Remarks': 'Store Visit'
-            });
+                'Remarks': 'Week Off'
+            };
+            
+            // Add empty store columns
+            for (let i = 1; i <= 6; i++) {
+                sundayRow[`Store ${i}`] = 'Week Off';
+            }
+            
+            pjpData.push(sundayRow);
+            continue;
+        }
+        
+        // Get next route (different from previous day)
+        currentRouteIndex = getNextRouteIndex(currentRouteIndex, routes.length, usedRoutes);
+        const currentRoute = routes[currentRouteIndex];
+        
+        // Create row for working day
+        const dayRow = {
+            'Date': dateStr,
+            'Day': getDayName(dayOfWeek),
+            'Route': currentRoute.routeName,
+            'Remarks': 'Store Visit'
+        };
+        
+        // Add all stores from this route
+        currentRoute.stores.forEach((store, index) => {
+            dayRow[`Store ${index + 1}`] = store || '';
+        });
+        
+        // Fill remaining store columns if any
+        for (let i = currentRoute.stores.length + 1; i <= 6; i++) {
+            dayRow[`Store ${i}`] = '';
+        }
+        
+        pjpData.push(dayRow);
+        usedRoutes.push(currentRouteIndex);
+        
+        // Reset used routes if all routes have been used
+        if (usedRoutes.length >= routes.length) {
+            usedRoutes.length = 0;
         }
     }
     
     return pjpData;
 }
 
-function extractStores(storeData) {
-    // Extract store names from the first row
-    if (storeData.length > 0) {
-        const firstRow = storeData[0];
-        return Object.values(firstRow).filter(value => 
-            typeof value === 'string' && value.trim() !== ''
-        );
+function extractRoutes(routeData) {
+    const routes = [];
+    
+    routeData.forEach(row => {
+        const routeName = row.Plan || row.Route || `Route-${routes.length + 1}`;
+        const stores = [];
+        
+        // Extract stores from Store 1 to Store 6
+        for (let i = 1; i <= 6; i++) {
+            const storeKey = `Store ${i}`;
+            if (row[storeKey] && row[storeKey] !== '0' && row[storeKey] !== '') {
+                stores.push(row[storeKey]);
+            }
+        }
+        
+        if (stores.length > 0) {
+            routes.push({
+                routeName: routeName,
+                stores: stores
+            });
+        }
+    });
+    
+    return routes;
+}
+
+function getNextRouteIndex(currentIndex, totalRoutes, usedRoutes) {
+    let nextIndex;
+    
+    // If first day or need to change route
+    if (currentIndex === -1) {
+        nextIndex = Math.floor(Math.random() * totalRoutes);
+    } else {
+        // Get random route that's different from current and not recently used
+        const availableRoutes = [];
+        for (let i = 0; i < totalRoutes; i++) {
+            if (i !== currentIndex && !usedRoutes.includes(i)) {
+                availableRoutes.push(i);
+            }
+        }
+        
+        if (availableRoutes.length > 0) {
+            nextIndex = availableRoutes[Math.floor(Math.random() * availableRoutes.length)];
+        } else {
+            // If no available routes, pick any except current
+            do {
+                nextIndex = Math.floor(Math.random() * totalRoutes);
+            } while (nextIndex === currentIndex);
+        }
     }
-    return ['Store 1', 'Store 2', 'Store 3', 'Store 4']; // Default fallback
+    
+    return nextIndex;
+}
+
+function formatDate(date) {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
 }
 
 // Tool 3: Floater Incentive Tracker
@@ -353,4 +437,5 @@ function showMessage(message, type) {
     messageDiv.textContent = message;
     messageDiv.className = type;
 }
+
 
