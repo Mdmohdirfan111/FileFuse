@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MergeSheets Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>MergeSheets Pro</h1>
+        <p class="info-message">All files must have the same column headings for proper concatenation.</p>
+        
+        <div class="upload-options">
+            <div class="option">
+                <h3>A) Upload Excel/CSV Files</h3>
+                <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv">
+                <button onclick="uploadFiles()">Concatenate Files</button>
+            </div>
+            
+            <div class="option">
+                <h3>B) Drag Folder Here</h3>
+                <div class="drop-zone" id="dropZone">
+                    <p>Drag and drop folder here</p>
+                </div>
+                <button onclick="uploadFolder()">Concatenate Folder</button>
+            </div>
+        </div>
+        
+        <div id="message"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
