@@ -457,3 +457,4 @@ function generateER() {
     pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
     showMessage('ER PDF generated successfully!', 'success');
 }
+
