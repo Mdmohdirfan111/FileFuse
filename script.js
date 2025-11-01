@@ -28,217 +28,283 @@ const STORES = [
 
 // ==== 1. FILE CONCATENATOR ====
 async function concatenateFiles() {
-    const filesInput = document.getElementById('concatFiles');
-    const files = filesInput.files;
+    const files = document.getElementById('concatFiles').files;
     if (files.length === 0) {
         showMessage('Please select at least one file!', 'error');
         return;
     }
 
     showMessage('Processing files...', 'processing');
-
-    const workbook = XLSX.utils.book_new();
-    const allData = [];
-    let headers = null;
-
-    for (let file of files) {
-        const arrayBuffer = await file.arrayBuffer();
-        let data;
-
-        if (file.name.endsWith('.pdf')) {
-            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-            const pdf = await loadingTask.promise;
-            let text = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                text += content.items.map(item => item.str).join(' ') + '\n';
+    
+    try {
+        const allData = [];
+        
+        for (let file of files) {
+            if (file.name.endsWith('.pdf')) {
+                // PDF processing - extract text and file name
+                const pdfData = await processPDF(file);
+                allData.push(pdfData);
+            } else {
+                // Excel/CSV processing
+                const excelData = await processExcelCSV(file);
+                allData.push(...excelData);
             }
-            data = text.trim().split('\n').map(row => [row]);
+        }
+        
+        // Create output workbook
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(allData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Concatenated Data');
+        XLSX.writeFile(wb, 'concatenated_output.xlsx');
+        
+        showMessage('Files concatenated successfully!', 'success');
+    } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+    }
+}
+
+async function processPDF(file) {
+    // For PDF files, we'll just extract file name and create a row
+    return {
+        'Store': file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+        'Content_Type': 'PDF',
+        'File_Name': file.name,
+        'Processed_At': new Date().toLocaleString()
+    };
+}
+
+async function processExcelCSV(file) {
+    return new Promise((resolve, resolve) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                let workbook, data;
+                
+                if (file.name.endsWith('.csv')) {
+                    const csvText = e.target.result;
+                    workbook = XLSX.read(csvText, { type: 'string' });
+                } else {
+                    const arrayBuffer = e.target.result;
+                    workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                }
+                
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                data = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Add Store column with file name
+                const processedData = data.map(row => ({
+                    ...row,
+                    'Store': file.name.replace(/\.[^/.]+$/, "")
+                }));
+                
+                resolve(processedData);
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        reader.onerror = () => reject(new Error('Error reading file'));
+        
+        if (file.name.endsWith('.csv')) {
+            reader.readAsText(file);
         } else {
-            const wb = XLSX.read(arrayBuffer, { type: 'array' });
-            const ws = wb.Sheets[wb.SheetNames[0]];
-            data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+            reader.readAsArrayBuffer(file);
         }
-
-        if (!headers) {
-            headers = data[0];
-            allData.push(headers);
-        } else if (JSON.stringify(headers) !== JSON.stringify(data[0])) {
-            showMessage('Headers do not match across files!', 'error');
-            return;
-        }
-
-        // Add store name from filename (before extension)
-        const storeName = file.name.replace(/\.[^/.]+$/, '').trim();
-        data.slice(1).forEach(row => {
-            const newRow = [...row];
-            newRow.push(storeName); // Add as last column
-            allData.push(newRow);
-        });
-    }
-
-    // Add "Store" header if not exists
-    if (headers && !headers.includes('Store')) {
-        headers.push('Store');
-    }
-
-    const ws = XLSX.utils.aoa_to_sheet(allData);
-    XLSX.utils.book_append_sheet(workbook, ws, 'Combined');
-    XLSX.writeFile(workbook, 'Concatenated_Output.xlsx');
-    showMessage('Files merged successfully!', 'success');
+    });
 }
 
 // ==== 2. MONTHLY PJP GENERATOR ====
 function generatePJP() {
-    const fileInput = document.getElementById('storeData');
+    const file = document.getElementById('storeData').files[0];
     const monthInput = document.getElementById('pjpMonth').value;
-    if (!fileInput.files[0] || !monthInput) {
-        showMessage('Please select file and month!', 'error');
+    
+    if (!file || !monthInput) {
+        showMessage('Please select store data file and month!', 'error');
         return;
     }
 
     showMessage('Generating PJP...', 'processing');
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
+    
+    processExcelCSV(file).then(routeData => {
         const [year, month] = monthInput.split('-');
-        const daysInMonth = new Date(year, month, 0).getDate();
-        const output = [];
-
-        // Header
-        const header = ['Date', 'Day'];
-        json[0].slice(1).forEach(col => header.push(col));
-        output.push(header);
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month - 1, day);
-            const dayName = date.toLocaleString('en-us', { weekday: 'long' });
-            const row = [`${day}/${month}/${year}`, dayName];
-            json[0].slice(1).forEach(() => row.push(''));
-            output.push(row);
-        }
-
+        const pjpData = generatePJPData(routeData, parseInt(year), parseInt(month));
+        
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(output);
-        XLSX.utils.book_append_sheet(wb, ws, 'PJP');
-        XLSX.writeFile(wb, `PJP_${monthInput}.xlsx`);
-        showMessage('PJP generated!', 'success');
-    };
+        const ws = XLSX.utils.json_to_sheet(pjpData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Monthly PJP');
+        XLSX.writeFile(wb, 'monthly_pjp.xlsx');
+        
+        showMessage('PJP generated successfully!', 'success');
+    }).catch(error => {
+        showMessage('Error: ' + error.message, 'error');
+    });
+}
 
-    reader.readAsArrayBuffer(file);
+function generatePJPData(routeData, year, month) {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const pjp = [];
+    
+    // Header
+    pjp.push(['Date', 'Day', 'Route Plan']);
+    
+    let routeIndex = 0;
+    const routes = routeData.map(row => ({
+        plan: row.Plan,
+        stores: [row['Store 1'], row['Store 2'], row['Store 3'], row['Store 4']].filter(Boolean)
+    }));
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month - 1, day);
+        const dayName = date.toLocaleString('default', { weekday: 'long' });
+        const dateStr = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+        
+        if (date.getDay() === 0) { // Sunday off
+            pjp.push([dateStr, dayName, 'Week Off']);
+            continue;
+        }
+        
+        const route = routes[routeIndex % routes.length];
+        pjp.push([dateStr, dayName, route.plan + ' - ' + route.stores.join(', ')]);
+        routeIndex++;
+    }
+    
+    return pjp;
 }
 
 // ==== 3. FLOATER INCENTIVE TRACKER ====
 function generateFloaterSchedule() {
-    const fileInput = document.getElementById('floaterData');
+    const file = document.getElementById('floaterData').files[0];
     const monthInput = document.getElementById('floaterMonth').value;
-    if (!fileInput.files[0] || !monthInput) {
-        showMessage('Please select file and month!', 'error');
+    
+    if (!file || !monthInput) {
+        showMessage('Please select floater data file and month!', 'error');
         return;
     }
 
-    showMessage('Generating schedule...', 'processing');
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
-
+    showMessage('Generating Schedule...', 'processing');
+    
+    processExcelCSV(file).then(counterData => {
         const [year, month] = monthInput.split('-');
-        const daysInMonth = new Date(year, month, 0).getDate();
-        const schedule = {};
-
-        json.forEach((row, i) => {
-            schedule[row.Counter_Code] = {
-                name: row.Store_Name,
-                offDays: []
-            };
-        });
-
-        const counters = Object.keys(schedule);
-        let dayIndex = 0;
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month - 1, day);
-            if (date.getDay() === 0) continue; // Skip Sunday
-
-            const counter = counters[dayIndex % counters.length];
-            schedule[counter].offDays.push(day);
-            dayIndex++;
-        }
-
-        const output = [['Counter_Code', 'Store_Name', 'Weekly Off Dates']];
-        counters.forEach(code => {
-            const off = schedule[code].offDays.join(', ');
-            output.push([code, schedule[code].name, off]);
-        });
-
+        const floaterSchedule = generateFloaterData(counterData, parseInt(year), parseInt(month));
+        
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(output);
-        XLSX.utils.book_append_sheet(wb, ws, 'Schedule');
-        XLSX.writeFile(wb, `Floater_Schedule_${monthInput}.xlsx`);
-        showMessage('Schedule generated!', 'success');
-    };
+        const ws = XLSX.utils.json_to_sheet(floaterSchedule);
+        XLSX.utils.book_append_sheet(wb, ws, 'Floater Schedule');
+        XLSX.writeFile(wb, 'floater_schedule.xlsx');
+        
+        showMessage('Schedule generated successfully!', 'success');
+    }).catch(error => {
+        showMessage('Error: ' + error.message, 'error');
+    });
+}
 
-    reader.readAsArrayBuffer(file);
+function generateFloaterData(counterData, year, month) {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const schedule = [];
+    
+    // Header
+    schedule.push(['Date', 'Day', 'Counter Code', 'Store Name']);
+    
+    const counterStores = counterData.map(row => ({
+        counterCode: row.Counter_Code,
+        storeName: row.Store_Name
+    }));
+    
+    let usedCounters = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month - 1, day);
+        const dayName = date.toLocaleString('default', { weekday: 'long' });
+        const dateStr = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+        
+        if (date.getDay() === 0) { // Sunday off
+            schedule.push([dateStr, dayName, 'Week Off', 'Week Off']);
+            usedCounters = []; // Reset for next week
+            continue;
+        }
+        
+        const counterStore = getRandomCounterStore(counterStores, usedCounters);
+        schedule.push([dateStr, dayName, counterStore.counterCode, counterStore.storeName]);
+        usedCounters.push(counterStore.counterCode);
+    }
+    
+    return schedule;
+}
+
+function getRandomCounterStore(counterStores, usedCounters) {
+    const available = counterStores.filter(store => !usedCounters.includes(store.counterCode));
+    if (available.length > 0) {
+        return available[Math.floor(Math.random() * available.length)];
+    }
+    return { counterCode: 'NO_COUNTER', storeName: 'NO STORE AVAILABLE' };
 }
 
 // ==== 4. CATALOGUE XLOOKUP ====
 function performLookup() {
-    const catFile = document.getElementById('catalogueFile').files[0];
+    const catalogueFile = document.getElementById('catalogueFile').files[0];
     const sohFile = document.getElementById('sohFile').files[0];
-    if (!catFile || !sohFile) {
-        showMessage('Please select both files!', 'error');
+    
+    if (!catalogueFile || !sohFile) {
+        showMessage('Please select both catalogue and SOH files!', 'error');
         return;
     }
 
     showMessage('Performing lookup...', 'processing');
-    Promise.all([catFile, sohFile].map(f => f.arrayBuffer())).then(([catBuf, sohBuf]) => {
-        const catWb = XLSX.read(catBuf, { type: 'array' });
-        const sohWb = XLSX.read(sohBuf, { type: 'array' });
-
-        const catSheet = catWb.Sheets[catWb.SheetNames[0]];
-        const sohSheet = sohWb.Sheets[sohWb.SheetNames[0]];
-
-        const catData = XLSX.utils.sheet_to_json(catSheet);
-        const sohData = XLSX.utils.sheet_to_json(sohSheet);
-
-        const catMap = {};
-        catData.forEach(row => {
-            if (row.Description) catMap[row.Description.trim()] = row;
-        });
-
-        const output = [['Description', 'SOH', 'Catalogue Match', 'Status']];
-        sohData.forEach(row => {
-            const desc = row.Description ? row.Description.trim() : '';
-            const match = catMap[desc];
-            output.push([
-                desc,
-                row.SOH || '',
-                match ? (match.SOH || '') : '',
-                match ? 'Matched' : 'Unmatched'
-            ]);
-        });
-
+    
+    Promise.all([
+        processExcelCSV(catalogueFile),
+        processExcelCSV(sohFile)
+    ]).then(([catalogueData, sohData]) => {
+        const matchedData = performCatalogueLookup(catalogueData, sohData);
+        
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(output);
-        XLSX.utils.book_append_sheet(wb, ws, 'Lookup');
-        XLSX.writeFile(wb, 'XLookup_Result.xlsx');
-        showMessage('Lookup completed!', 'success');
+        const ws = XLSX.utils.json_to_sheet(matchedData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Lookup Results');
+        XLSX.writeFile(wb, 'catalogue_lookup_results.xlsx');
+        
+        showMessage('Lookup completed successfully!', 'success');
+    }).catch(error => {
+        showMessage('Error: ' + error.message, 'error');
     });
 }
 
-// ==== 5. ER GENERATOR (SIMPLE LAYOUT - 100% WORKING) ====
+function performCatalogueLookup(catalogueData, sohData) {
+    const results = [];
+    
+    for (let sohRow of sohData) {
+        const description = sohRow.Description || sohRow.description;
+        if (!description) continue;
+        
+        // Find matching catalogue entries
+        const matches = catalogueData.filter(catRow => 
+            (catRow.Description || catRow.description || '').toLowerCase().includes(description.toLowerCase()) ||
+            description.toLowerCase().includes((catRow.Description || catRow.description || '').toLowerCase())
+        );
+        
+        if (matches.length > 0) {
+            matches.forEach(match => {
+                results.push({
+                    ...match,
+                    ...sohRow,
+                    'Match_Status': 'MATCHED',
+                    'SOH_Store_Name': sohRow['SOH store name'] || sohRow.Store_Name
+                });
+            });
+        } else {
+            results.push({
+                ...sohRow,
+                'Match_Status': 'NO_MATCH',
+                'SOH_Store_Name': sohRow['SOH store name'] || sohRow.Store_Name
+            });
+        }
+    }
+    
+    return results;
+}
+
+// ==== 5. ER GENERATOR ====
 function generateER() {
     const monthInput = document.getElementById('erMonth').value;
     const mobileDate = document.getElementById('mobileDate').value;
@@ -255,23 +321,29 @@ function generateER() {
         return;
     }
 
+    // Collect leaves/holidays
+    const leaveRows = document.getElementsByClassName('leave-row');
+    const leaves = {};
+    for (let row of leaveRows) {
+        const dateInput = row.querySelector('.leave-date').value;
+        const type = row.querySelector('.leave-type').value;
+        if (dateInput) {
+            const day = new Date(dateInput).getDate();
+            leaves[day] = type;
+        }
+    }
+
     showMessage('Generating ER PDF...', 'processing');
 
     const [year, month] = monthInput.split('-').map(Number);
     const daysInMonth = new Date(year, month, 0).getDate();
     const claimPeriod = `01-${String(month).padStart(2, '0')}-${year} to ${daysInMonth}-${String(month).padStart(2, '0')}-${year}`;
-    const workingDays = Array.from({length: daysInMonth}, (_, i) => i + 1)
-        .filter(d => new Date(year, month - 1, d).getDay() !== 0).length;
+    let workingDays = 0;
 
-    const dailyAllowance = workingDays * 300;
-    const totalClaim = dailyAllowance + mobileAmount + courierAmount;
-
-    const mobileDay = mobileDate ? new Date(mobileDate).getDate() : null;
-    const courierDay = courierDate ? new Date(courierDate).getDate() : null;
-
-    // Generate rows (simple strings first, then convert)
     const rows = [];
     let lastStore = null;
+
+    let sumDaily = 0, sumTravel = 0, sumLocal = 0, sumMeals = 0, sumHotel = 0, sumMobile = 0, sumCourier = 0, sumOther = 0;
 
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month - 1, day);
@@ -279,115 +351,109 @@ function generateER() {
         const dateStr = `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
         const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
 
+        let allowance = 0;
+        let store = '';
+        let remark = '';
+        let mobileOnDay = 0;
+        let courierOnDay = 0;
+
         if (dayOfWeek === 0) {
-            rows.push([
-                dateStr, dayName, 'Week Off', '', 0, 0, 0, 0, 0, 0, 0, 'Week Off'
-            ]);
-            continue;
+            remark = '';
+        } else if (leaves[day]) {
+            remark = '';
+        } else {
+            allowance = 300;
+            workingDays++;
+            do {
+                store = STORES[Math.floor(Math.random() * STORES.length)];
+            } while (store === lastStore);
+            lastStore = store;
+            remark = '';
         }
 
-        let store;
-        do {
-            store = STORES[Math.floor(Math.random() * STORES.length)];
-        } while (store === lastStore);
-        lastStore = store;
+        if (mobileDate) {
+            const mDay = new Date(mobileDate).getDate();
+            if (mDay === day) mobileOnDay = mobileAmount;
+        }
 
-        const mobileOnDay = (mobileDay === day) ? mobileAmount : 0;
-        const courierOnDay = (courierDay === day) ? courierAmount : 0;
+        if (courierDate) {
+            const cDay = new Date(courierDate).getDate();
+            if (cDay === day) courierOnDay = courierAmount;
+        }
 
         rows.push([
-            dateStr, dayName, store, '', 300, 0, 0, 0, 0, mobileOnDay, courierOnDay, 'Store Visit'
+            { text: dateStr, fontSize: 8 }, 
+            { text: dayName, fontSize: 8 }, 
+            { text: store, fontSize: 8 }, 
+            { text: '', fontSize: 8 }, 
+            { text: allowance.toString(), fontSize: 8 }, 
+            { text: '0', fontSize: 8 }, 
+            { text: '0', fontSize: 8 }, 
+            { text: '0', fontSize: 8 }, 
+            { text: '0', fontSize: 8 }, 
+            { text: mobileOnDay.toString(), fontSize: 8 }, 
+            { text: courierOnDay.toString(), fontSize: 8 }, 
+            { text: remark, fontSize: 8 }
         ]);
+
+        sumDaily += allowance;
+        sumMobile += mobileOnDay;
+        sumCourier += courierOnDay;
     }
 
-    // Convert to text objects (safe for pdfMake)
-    const convertToText = (arr) => arr.map(val => ({ text: val.toString() }));
+    const totalClaim = sumDaily + sumMobile + sumCourier;
 
-    // PDF Definition - SIMPLE LAYOUT (no function, no colSpan issues)
+    rows.push([
+        { text: 'Total', bold: true, fontSize: 8 }, 
+        { text: '', fontSize: 8 }, 
+        { text: '', fontSize: 8 }, 
+        { text: '', fontSize: 8 }, 
+        { text: sumDaily.toString(), bold: true, fontSize: 8 }, 
+        { text: '0', bold: true, fontSize: 8 }, 
+        { text: '0', bold: true, fontSize: 8 }, 
+        { text: '0', bold: true, fontSize: 8 }, 
+        { text: '0', bold: true, fontSize: 8 }, 
+        { text: sumMobile.toString(), bold: true, fontSize: 8 }, 
+        { text: sumCourier.toString(), bold: true, fontSize: 8 }, 
+        { text: '0', bold: true, fontSize: 8 }
+    ]);
+
+    // PDF Definition
     const docDefinition = {
+        pageSize: 'A4',
         pageOrientation: 'landscape',
-        pageMargins: [20, 60, 20, 60],
-        header: function(currentPage, pageCount) {
-            return [
-                { text: 'Teamlase - Travel Expenses Statement', style: 'header', alignment: 'center' },
-                { text: '315 Work Avenue Campus, Ascent Building 77, Jyoti Nivas College Rd, Koramangala Industrial Layout, Koramangala, Bengaluru, Karnataka 560095', style: 'subheader', alignment: 'center', margin: [0, 5, 0, 0] }
-            ];
+        pageMargins: [10, 50, 10, 40],
+        header: {
+            margin: [10, 10, 10, 0],
+            columns: [
+                { text: 'Teamlase - Travel Expenses Statement', style: 'header' },
+                { text: '315 Work Avenue Campus, Ascent Building 77, Jyoti Nivas College Rd, Koramangala Industrial Layout, Koramangala, Bengaluru, Karnataka 560095', style: 'subheader', alignment: 'center' }
+            ]
         },
         content: [
             { text: '\n' },
-            // Employee Info Table (simple 2-row table)
             {
                 table: {
-                    widths: ['*', '*', '*', '*', '*', '*'],
+                    widths: [40, 60, 60, 40, 40, 40, 40, 40, 50, 50, 40, 50],
                     body: [
-                        convertToText(['Employee ID:', '874786', 'Designation:', 'SUPERVISOR', 'Claim Period:', claimPeriod]),
-                        convertToText(['Employee Name:', 'SHABANA BEGUM', 'HQ Town:', 'HYDERABAD', 'Working days:', workingDays.toString()])
+                        [{ text: 'Employee ID:', bold: true, fontSize: 8 }, { text: '874786', fontSize: 8 }, { text: 'Designation', bold: true, fontSize: 8 }, { text: 'SUPERVISOR', fontSize: 8 }, { text: 'Claim Period', bold: true, fontSize: 8 }, { text: claimPeriod, fontSize: 8 } ],
+                        [{ text: 'Employee Name', bold: true, fontSize: 8 }, { text: 'SHABANA BEGUM', fontSize: 8 }, { text: 'HQ Town', bold: true, fontSize: 8 }, { text: 'HYDERABAD', fontSize: 8 }, { text: 'Working days', bold: true, fontSize: 8 }, { text: workingDays.toString(), fontSize: 8 }],
+                        [{ text: 'Total Claim Amount', bold: true, fontSize: 8, colSpan: 6 }, {}, {}, {}, {}, { text: totalClaim.toString(), bold: true, fontSize: 8, colSpan: 6 }, {}, {}, {}, {}, {}, {}],
+                        [{ text: 'Date', bold: true, fontSize: 8 }, { text: 'Day', bold: true, fontSize: 8 }, { text: 'Market worked', bold: true, fontSize: 8 }, { text: 'Claim Type', bold: true, fontSize: 8 }, { text: 'Daily Allowance', bold: true, fontSize: 8 }, { text: 'Travel Fare', bold: true, fontSize: 8 }, { text: 'Local Travel Fare', bold: true, fontSize: 8 }, { text: 'Meals (400/day)', bold: true, fontSize: 8 }, { text: 'Hotel (1500+tax/Day)', bold: true, fontSize: 8 }, { text: 'Mobile Exps. (Rs.1500)', bold: true, fontSize: 8 }, { text: 'Courier', bold: true, fontSize: 8 }, { text: 'Activity/Others', bold: true, fontSize: 8 }],
+                        ...rows
                     ]
                 },
                 layout: 'lightHorizontalLines'
             },
-            // Total Claim
-            {
-                text: `Total Claim Amount: ₹${totalClaim}`, bold: true, fontSize: 12, margin: [0, 10, 0, 10]
-            },
-            // Main Data Table
-            {
-                table: {
-                    headerRows: 1,
-                    widths: [40, 60, '*', 60, 60, 60, 60, 60, 70, 70, 50, 80],
-                    body: [
-                        // Header
-                        [{ text: 'Date', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Day', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Market worked', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Claim Type', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Daily Allowance', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Travel Fare', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Local Travel Fare', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Meals (400/day)', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Hotel (1500+tax/Day)', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Mobile Exps. (Rs.1500)', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Courier', bold: true, fillColor: '#d9e2f3' },
-                         { text: 'Activity/Others', bold: true, fillColor: '#d9e2f3' }],
-                        // Data rows
-                        ...rows.map((row, index) => {
-                            const rowObj = convertToText(row);
-                            rowObj.forEach(cell => {
-                                cell.fillColor = index % 2 === 0 ? '#f5f5f5' : null;
-                            });
-                            return rowObj;
-                        })
-                    ]
-                },
-                layout: {
-                    fillColor: function (rowIndex) {
-                        return (rowIndex === 0) ? '#d9e2f3' : null;
-                    }
-                }
-            },
-            { text: '\nI Certify that these expenses are correctly stated and were incurred as Necessary business expenses in the service of the company only.', style: 'certify', margin: [0, 20, 0, 0] }
+            { text: '\nI Certify that these expenses are correctly stated and were incurred as Necessary business expenses in the service of the company only.', style: 'certify', fontSize: 8 }
         ],
         styles: {
-            header: { fontSize: 16, bold: true, color: '#1e3a8a', margin: [0, 0, 0, 10] },
-            subheader: { fontSize: 9, italics: true },
-            certify: { fontSize: 9, alignment: 'left', italics: true }
-        },
-        footer: function(currentPage, pageCount) {
-            return { text: `Page ${currentPage} of ${pageCount}`, alignment: 'center', fontSize: 8, margin: [0, 10, 0, 0] };
+            header: { fontSize: 12, bold: true, alignment: 'center', color: '#1e3a8a' },
+            subheader: { fontSize: 7, italics: true },
+            certify: { fontSize: 8, alignment: 'left', margin: [10, 10] }
         }
     };
 
-    // Download with error handling
-    try {
-        pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = `ER_${monthInput}_SHABANA.pdf`;
-            link.click();
-        });
-        showMessage('ER PDF downloaded successfully!', 'success');
-    } catch (err) {
-        console.error('PDF Error:', err);
-        showMessage('PDF generation failed. Check console.', 'error');
-    }
+    pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
+    showMessage('ER PDF generated successfully!', 'success');
 }
