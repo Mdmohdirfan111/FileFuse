@@ -208,6 +208,71 @@ input[type="file"]:hover, input[type="month"]:hover {
     font-weight: 500;
 }
 
+/* ==== SAMPLE TABLE ==== */
+.sample-table {
+    margin-top: 18px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px dashed #e91e63;
+}
+
+.sample-title {
+    font-size: 0.85rem;
+    color: #e91e63;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sample-title::before {
+    content: "Info";
+    font-size: 0.7rem;
+    background: #e91e63;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sample-table table {
+    width: 100%;
+    min-width: 300px;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    background: white;
+}
+
+.sample-table th {
+    background: linear-gradient(45deg, #e91e63, #ff6b6b);
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sample-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+}
+
+.sample-table tr:last-child td {
+    border-bottom: none;
+}
+
+.sample-table tbody tr:hover {
+    background: #fff5f5;
+}
+
 /* ==== MESSAGE BOX ==== */
 .message-box {
     margin: 30px 0;
@@ -313,69 +378,14 @@ footer {
         font-size: 1.9rem;
     }
     .tool-card {
-        padding: 20px;
+        padding: 18px;
     }
     .input-group.dual {
         grid-template-columns: 1fr;
     }
+    .sample-table th,
+    .sample-table td {
+        font-size: 0.7rem;
+        padding: 6px 8px;
+    }
 }
-
-/* ==== SAMPLE TABLE ==== */
-.sample-table {
-    margin-top: 18px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
-    padding: 12px;
-    border: 1px dashed #e91e63;
-}
-
-.sample-title {
-    font-size: 0.85rem;
-    color: #e91e63;
-    font-weight: 600;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.sample-title::before {
-    content: "Info";
-    font-size: 0.7rem;
-    background: #e91e63;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 50%;
-}
-
-.sample-table table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.sample-table th {
-    background: linear-gradient(45deg, #e91e63, #ff6b6b);
-    color: white;
-    padding: 8px 10px;
-    text-align: left;
-    font-weight: 600;
-}
-
-.sample-table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.sample-table tr:last-child td {
-    border-bottom: none;
-}
-
-.sample-table tbody tr:hover {
-    background: #fff5f5;
-}
-
