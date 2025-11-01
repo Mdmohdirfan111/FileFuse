@@ -389,3 +389,47 @@ footer {
         padding: 6px 8px;
     }
 }
+
+/* ==== ER INPUTS ==== */
+.er-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.er-inputs input[type="month"],
+.er-inputs input[type="number"] {
+    padding: 12px 14px;
+    border: 2px dashed #e91e63;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.er-inputs input[type="number"] {
+    width: 100%;
+}
+
+.er-inputs input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: white;
+}
+
+.er-inputs .action-btn {
+    height: 48px;
+    padding: 0 18px;
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .er-inputs {
+        grid-template-columns: 1fr;
+    }
+    .er-inputs .action-btn {
+        margin-top: 10px;
+    }
+}
