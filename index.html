@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
@@ -213,7 +215,14 @@
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Modular Scripts (Order Matters) -->
+    <script src="js/file-concatenator.js"></script>
+    <script src="js/pjp-generator.js"></script>
+    <script src="js/floater-tracker.js"></script>
+    <script src="js/catalogue-xlookup.js"></script>
+    <script src="js/er-generator.js"></script>
+
+    <!-- Inline Scripts (Music + Leave Row) -->
     <script>
         // Music Toggle
         const musicBtn = document.getElementById('musicBtn');
