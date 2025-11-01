@@ -74,7 +74,7 @@ async function processPDF(file) {
 }
 
 async function processExcelCSV(file) {
-    return new Promise((resolve, resolve) => {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         
         reader.onload = function(e) {
@@ -457,4 +457,5 @@ function generateER() {
     pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
     showMessage('ER PDF generated successfully!', 'success');
 }
+
 
