@@ -126,23 +126,27 @@
                 <div class="info-badge">Unmatched records included</div>
             </div>
 
-            <!-- Tool 5: ER Generator -->
+                        <!-- Tool 5: ER Generator -->
             <div class="tool-card" data-tool="5">
                 <div class="tool-icon">
                     <i class="fas fa-file-invoice-dollar"></i>
                 </div>
                 <h2>ER Generator</h2>
                 <p class="tool-desc">Generate Travel Expense Report (PDF).</p>
-                <div class="input-group">
+                
+                <div class="input-group er-inputs">
                     <input type="month" id="erMonth" required>
+                    <input type="number" id="mobileExp" placeholder="Mobile (max ₹1500)" min="0" max="1500" value="0">
+                    <input type="number" id="courierExp" placeholder="Courier" min="0" value="0">
                     <button onclick="generateER()" class="action-btn">
-                        <i class="fas fa-download"></i> Generate ER (PDF)
+                        <i class="fas fa-download"></i> Generate ER
                     </button>
                 </div>
-                <div class="info-badge">Daily Allowance: ₹300 | Mobile: ₹1500 | Sunday = Week Off</div>
-            </div>
 
-        </div>
+                <div class="info-badge">
+                    Daily: ₹300 | Mobile: ₹1500 | Sunday = Week Off
+                </div>
+            </div>
 
         <!-- Message Area -->
         <div id="message" class="message-box"></div>
@@ -173,3 +177,4 @@
     </script>
 </body>
 </html>
+
