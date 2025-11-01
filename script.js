@@ -238,7 +238,7 @@ function performLookup() {
     });
 }
 
-// ==== 5. ER GENERATOR (FINAL) ====
+// ==== 5. ER GENERATOR (FIXED - 100% DOWNLOAD) ====
 function generateER() {
     const monthInput = document.getElementById('erMonth').value;
     const mobileDate = document.getElementById('mobileDate').value;
@@ -266,11 +266,9 @@ function generateER() {
     const dailyAllowance = workingDays * 300;
     const totalClaim = dailyAllowance + mobileAmount + courierAmount;
 
-    // Parse selected dates
     const mobileDay = mobileDate ? new Date(mobileDate).getDate() : null;
     const courierDay = courierDate ? new Date(courierDate).getDate() : null;
 
-    // Generate rows
     const rows = [];
     let lastStore = null;
 
@@ -281,11 +279,14 @@ function generateER() {
         const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
 
         if (dayOfWeek === 0) {
-            rows.push([dateStr, dayName, 'Week Off', '', 0, 0, 0, 0, 0, 0, 0, 'Week Off']);
+            rows.push([
+                { text: dateStr }, { text: dayName }, { text: 'Week Off' }, { text: '' },
+                { text: '0' }, { text: '0' }, { text: '0' }, { text: '0' }, { text: '0' },
+                { text: '0' }, { text: '0' }, { text: 'Week Off' }
+            ]);
             continue;
         }
 
-        // Random store (no repeat)
         let store;
         do {
             store = STORES[Math.floor(Math.random() * STORES.length)];
@@ -296,12 +297,13 @@ function generateER() {
         const courierOnDay = (courierDay === day) ? courierAmount : 0;
 
         rows.push([
-            dateStr, dayName, store, '', 300, 0, 0, 0, 0,
-            mobileOnDay, courierOnDay, 'Store Visit'
+            { text: dateStr }, { text: dayName }, { text: store }, { text: '' },
+            { text: '300' }, { text: '0' }, { text: '0' }, { text: '0' }, { text: '0' },
+            { text: mobileOnDay.toString() }, { text: courierOnDay.toString() }, { text: 'Store Visit' }
         ]);
     }
 
-    // PDF Definition
+    // PDF Definition - ALL VALUES AS OBJECTS
     const docDefinition = {
         pageOrientation: 'landscape',
         pageMargins: [20, 60, 20, 60],
@@ -318,10 +320,26 @@ function generateER() {
                 table: {
                     widths: [50, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
                     body: [
-                        [{ text: 'Employee ID:', bold: true }, '874786', { text: 'Designation', bold: true }, 'SUPERVISOR', { text: 'Claim Period', bold: true }, claimPeriod],
-                        [{ text: 'Employee Name', bold: true }, 'SHABANA BEGUM', { text: 'HQ Town', bold: true }, 'HYDERABAD', { text: 'Working days', bold: true }, workingDays.toString()],
-                        [{ text: 'Total Claim Amount', bold: true, colSpan: 5 }, {}, {}, {}, {}, totalClaim.toString()],
-                        ['Date', 'Day', 'Market worked', 'Claim Type', 'Daily Allowance', 'Travel Fare', 'Local Travel Fare', 'Meals (400/day)', 'Hotel (1500+tax/Day)', 'Mobile Exps. (Rs.1500)', 'Courier', 'Activity/Others'],
+                        [
+                            { text: 'Employee ID:', bold: true }, { text: '874786' },
+                            { text: 'Designation', bold: true }, { text: 'SUPERVISOR' },
+                            { text: 'Claim Period', bold: true }, { text: claimPeriod }
+                        ],
+                        [
+                            { text: 'Employee Name', bold: true }, { text: 'SHABANA BEGUM' },
+                            { text: 'HQ Town', bold: true }, { text: 'HYDERABAD' },
+                            { text: 'Working days', bold: true }, { text: workingDays.toString() }
+                        ],
+                        [
+                            { text: 'Total Claim Amount', bold: true, colSpan: 5 }, {}, {}, {}, {},
+                            { text: totalClaim.toString() }
+                        ],
+                        [
+                            { text: 'Date' }, { text: 'Day' }, { text: 'Market worked' }, { text: 'Claim Type' },
+                            { text: 'Daily Allowance' }, { text: 'Travel Fare' }, { text: 'Local Travel Fare' },
+                            { text: 'Meals (400/day)' }, { text: 'Hotel (1500+tax/Day)' },
+                            { text: 'Mobile Exps. (Rs.1500)' }, { text: 'Courier' }, { text: 'Activity/Others' }
+                        ],
                         ...rows
                     ]
                 },
@@ -342,6 +360,8 @@ function generateER() {
         }
     };
 
+    // FINAL DOWNLOAD
     pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
     showMessage('ER PDF downloaded successfully!', 'success');
 }
+
