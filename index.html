@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shabana DataPro Tools</title>
+    <title>DataFuse Pro - Smart Excel Automation</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -26,7 +26,7 @@
         <header class="hero-header">
             <div class="logo">
                 <i class="fas fa-cube"></i>
-                <h1>Shabana DataPro Tools</h1>
+                <h1>DataFuse Pro</h1>
             </div>
             <p class="tagline">Smart Excel & PDF Automation | Built by <strong>Shabana Begum</strong></p>
             <div class="header-decoration"></div>
@@ -51,10 +51,10 @@
                 <div class="info-badge">All files must have same headers</div>
             </div>
 
-                        <!-- Tool 2: Monthly PJP Generator -->
+            <!-- Tool 2: Monthly PJP Generator -->
             <div class="tool-card" data-tool="2">
                 <div class="tool-icon">
-                    Calendar
+                    <i class="fas fa-calendar-alt"></i>
                 </div>
                 <h2>Monthly PJP Generator</h2>
                 <p class="tool-desc">Generate monthly route plan from store data.</p>
@@ -62,72 +62,35 @@
                     <input type="file" id="storeData" accept=".xlsx,.xls,.csv">
                     <input type="month" id="pjpMonth">
                     <button onclick="generatePJP()" class="action-btn">
-                        Magic Generate PJP
+                        <i class="fas fa-magic"></i> Generate PJP
                     </button>
                 </div>
 
                 <!-- Sample Table -->
                 <div class="sample-table">
                     <p class="sample-title">Input Format Example:</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Plan</th>
-                                <th>Store 1</th>
-                                <th>Store 2</th>
-                                <th>Store 3</th>
-                                <th>Store 4</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Route-1</td>
-                                <td>HEALTH & GLOW - TOWLICHOWKI, HYD</td>
-                                <td>HEALTH & GLOW - ALKAPURI, HYD</td>
-                                <td>CENTRO - KUKATPALLY, HYD</td>
-                                <td>HEALTH & GLOW - SUJANA FORUM MALL, HYD</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Tool 3: Floater Incentive Tracker -->
-            <div class="tool-card" data-tool="3">
-                <div class="tool-icon">
-                    Users
-                </div>
-                <h2>Floater Incentive Tracker</h2>
-                <p class="tool-desc">Auto-schedule floaters with weekly off rotation.</p>
-                <div class="input-group">
-                    <input type="file" id="floaterData" accept=".xlsx,.xls,.csv">
-                    <input type="month" id="floaterMonth">
-                    <button onclick="generateFloaterSchedule()" class="action-btn">
-                        Clipboard Generate Schedule
-                    </button>
-                </div>
-
-                <!-- Sample Table -->
-                <div class="sample-table">
-                    <p class="sample-title">Input Format Example:</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Counter_Code</th>
-                                <th>Store_Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>CTR001</td>
-                                <td>HEALTH & GLOW - TOWLICHOWKI</td>
-                            </tr>
-                            <tr>
-                                <td>CTR002</td>
-                                <td>HEALTH & GLOW - ALKAPURI</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Store 1</th>
+                                    <th>Store 2</th>
+                                    <th>Store 3</th>
+                                    <th>Store 4</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Route-1</td>
+                                    <td>Abc Store</td>
+                                    <td>Xyz Mall</td>
+                                    <td>Pqr Center</td>
+                                    <td>Lmn Plaza</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -145,7 +108,31 @@
                         <i class="fas fa-clipboard-list"></i> Generate Schedule
                     </button>
                 </div>
-                <div class="info-badge">Counter_Code & Store_Name required</div>
+
+                <!-- Sample Table -->
+                <div class="sample-table">
+                    <p class="sample-title">Input Format Example:</p>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Counter_Code</th>
+                                    <th>Store_Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CTR001</td>
+                                    <td>Abc Store</td>
+                                </tr>
+                                <tr>
+                                    <td>CTR002</td>
+                                    <td>Xyz Mall</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- Tool 4: Catalogue XLookup -->
@@ -178,7 +165,7 @@
 
         <!-- Footer -->
         <footer>
-            <p>Made with <i class="fas fa-heart pulse"></i> by <strong>Shabana Begum</strong> | DataPro Tools v2.0</p>
+            <p>Made with <i class="fas fa-heart pulse"></i> by <strong>Shabana Begum</strong> | DataFuse Pro v2.0</p>
         </footer>
     </div>
 
@@ -202,4 +189,3 @@
     </script>
 </body>
 </html>
-
