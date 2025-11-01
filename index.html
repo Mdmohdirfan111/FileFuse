@@ -8,9 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
-    <!-- External Libraries -->
+    <!-- Favicon Fix (No 404) -->
+    <link rel="icon" href="data:,">
+
+    <!-- External Libraries (FIXED: pdfmake + vfs_fonts.min.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
 </head>
@@ -215,10 +217,8 @@
         </footer>
     </div>
 
-    <!-- Utils First -->
+    <!-- Modular Scripts (utils first!) -->
     <script src="js/utils.js"></script>
-    
-    <!-- Modular Scripts -->
     <script src="js/file-concatenator.js"></script>
     <script src="js/pjp-generator.js"></script>
     <script src="js/floater-tracker.js"></script>
@@ -243,7 +243,7 @@
             isPlaying = !isPlaying;
         });
 
-        // Add Leave Row Function
+        // Add Leave Row
         function addLeaveRow() {
             const container = document.getElementById('leaves-container');
             const row = document.createElement('div');
@@ -258,9 +258,8 @@
             container.appendChild(row);
         }
 
-        // Add first row by default
+        // First row
         addLeaveRow();
     </script>
 </body>
 </html>
-
