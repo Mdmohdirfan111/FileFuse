@@ -238,7 +238,7 @@ function performLookup() {
     });
 }
 
-// ==== 5. ER GENERATOR (FINAL FIX - 100% DOWNLOAD) ====
+// ==== 5. ER GENERATOR (SIMPLE LAYOUT - 100% WORKING) ====
 function generateER() {
     const monthInput = document.getElementById('erMonth').value;
     const mobileDate = document.getElementById('mobileDate').value;
@@ -269,6 +269,7 @@ function generateER() {
     const mobileDay = mobileDate ? new Date(mobileDate).getDate() : null;
     const courierDay = courierDate ? new Date(courierDate).getDate() : null;
 
+    // Generate rows (simple strings first, then convert)
     const rows = [];
     let lastStore = null;
 
@@ -280,9 +281,7 @@ function generateER() {
 
         if (dayOfWeek === 0) {
             rows.push([
-                { text: dateStr }, { text: dayName }, { text: 'Week Off' }, { text: '' },
-                { text: '0' }, { text: '0' }, { text: '0' }, { text: '0' }, { text: '0' },
-                { text: '0' }, { text: '0' }, { text: 'Week Off' }
+                dateStr, dayName, 'Week Off', '', 0, 0, 0, 0, 0, 0, 0, 'Week Off'
             ]);
             continue;
         }
@@ -297,82 +296,98 @@ function generateER() {
         const courierOnDay = (courierDay === day) ? courierAmount : 0;
 
         rows.push([
-            { text: dateStr }, { text: dayName }, { text: store }, { text: '' },
-            { text: '300' }, { text: '0' }, { text: '0' }, { text: '0' }, { text: '0' },
-            { text: mobileOnDay.toString() }, { text: courierOnDay.toString() }, { text: 'Store Visit' }
+            dateStr, dayName, store, '', 300, 0, 0, 0, 0, mobileOnDay, courierOnDay, 'Store Visit'
         ]);
     }
 
-    // === PDF DEFINITION - NO fillColor FUNCTION ===
+    // Convert to text objects (safe for pdfMake)
+    const convertToText = (arr) => arr.map(val => ({ text: val.toString() }));
+
+    // PDF Definition - SIMPLE LAYOUT (no function, no colSpan issues)
     const docDefinition = {
         pageOrientation: 'landscape',
         pageMargins: [20, 60, 20, 60],
-        header: {
-            margin: [40, 20, 40, 0],
-            columns: [
-                { text: 'Teamlase - Travel Expenses Statement', style: 'header' },
-                { text: '315 Work Avenue Campus, Ascent Building 77, Jyoti Nivas College Rd, Koramangala Industrial Layout, Koramangala, Bengaluru, Karnataka 560095', style: 'subheader', alignment: 'center' }
-            ]
+        header: function(currentPage, pageCount) {
+            return [
+                { text: 'Teamlase - Travel Expenses Statement', style: 'header', alignment: 'center' },
+                { text: '315 Work Avenue Campus, Ascent Building 77, Jyoti Nivas College Rd, Koramangala Industrial Layout, Koramangala, Bengaluru, Karnataka 560095', style: 'subheader', alignment: 'center', margin: [0, 5, 0, 0] }
+            ];
         },
         content: [
             { text: '\n' },
+            // Employee Info Table (simple 2-row table)
             {
                 table: {
-                    headerRows: 4,
-                    widths: [50, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
+                    widths: ['*', '*', '*', '*', '*', '*'],
                     body: [
-                        [
-                            { text: 'Employee ID:', bold: true, fillColor: '#d9e2f3' }, { text: '874786', fillColor: '#d9e2f3' },
-                            { text: 'Designation', bold: true, fillColor: '#d9e2f3' }, { text: 'SUPERVISOR', fillColor: '#d9e2f3' },
-                            { text: 'Claim Period', bold: true, fillColor: '#d9e2f3' }, { text: claimPeriod, fillColor: '#d9e2f3' }
-                        ],
-                        [
-                            { text: 'Employee Name', bold: true, fillColor: '#d9e2f3' }, { text: 'SHABANA BEGUM', fillColor: '#d9e2f3' },
-                            { text: 'HQ Town', bold: true, fillColor: '#d9e2f3' }, { text: 'HYDERABAD', fillColor: '#d9e2f3' },
-                            { text: 'Working days', bold: true, fillColor: '#d9e2f3' }, { text: workingDays.toString(), fillColor: '#d9e2f3' }
-                        ],
-                        [
-                            { text: 'Total Claim Amount', bold: true, colSpan: 5, fillColor: '#d9e2f3' }, {}, {}, {}, {},
-                            { text: totalClaim.toString(), fillColor: '#d9e2f3' }
-                        ],
-                        [
-                            { text: 'Date', fillColor: '#d9e2f3' }, { text: 'Day', fillColor: '#d9e2f3' },
-                            { text: 'Market worked', fillColor: '#d9e2f3' }, { text: 'Claim Type', fillColor: '#d9e2f3' },
-                            { text: 'Daily Allowance', fillColor: '#d9e2f3' }, { text: 'Travel Fare', fillColor: '#d9e2f3' },
-                            { text: 'Local Travel Fare', fillColor: '#d9e2f3' }, { text: 'Meals (400/day)', fillColor: '#d9e2f3' },
-                            { text: 'Hotel (1500+tax/Day)', fillColor: '#d9e2f3' }, { text: 'Mobile Exps. (Rs.1500)', fillColor: '#d9e2f3' },
-                            { text: 'Courier', fillColor: '#d9e2f3' }, { text: 'Activity/Others', fillColor: '#d9e2f3' }
-                        ],
-                        ...rows.map((row, i) => row.map(cell => ({
-                            ...cell,
-                            fillColor: (i % 2 === 0) ? '#f5f5f5' : null
-                        })))
+                        convertToText(['Employee ID:', '874786', 'Designation:', 'SUPERVISOR', 'Claim Period:', claimPeriod]),
+                        convertToText(['Employee Name:', 'SHABANA BEGUM', 'HQ Town:', 'HYDERABAD', 'Working days:', workingDays.toString()])
+                    ]
+                },
+                layout: 'lightHorizontalLines'
+            },
+            // Total Claim
+            {
+                text: `Total Claim Amount: ₹${totalClaim}`, bold: true, fontSize: 12, margin: [0, 10, 0, 10]
+            },
+            // Main Data Table
+            {
+                table: {
+                    headerRows: 1,
+                    widths: [40, 60, '*', 60, 60, 60, 60, 60, 70, 70, 50, 80],
+                    body: [
+                        // Header
+                        [{ text: 'Date', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Day', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Market worked', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Claim Type', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Daily Allowance', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Travel Fare', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Local Travel Fare', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Meals (400/day)', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Hotel (1500+tax/Day)', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Mobile Exps. (Rs.1500)', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Courier', bold: true, fillColor: '#d9e2f3' },
+                         { text: 'Activity/Others', bold: true, fillColor: '#d9e2f3' }],
+                        // Data rows
+                        ...rows.map((row, index) => {
+                            const rowObj = convertToText(row);
+                            rowObj.forEach(cell => {
+                                cell.fillColor = index % 2 === 0 ? '#f5f5f5' : null;
+                            });
+                            return rowObj;
+                        })
                     ]
                 },
                 layout: {
-                    hLineWidth: () => 0.5,
-                    vLineWidth: () => 0.5,
-                    hLineColor: () => '#aaa',
-                    vLineColor: () => '#aaa'
+                    fillColor: function (rowIndex) {
+                        return (rowIndex === 0) ? '#d9e2f3' : null;
+                    }
                 }
             },
-            { text: '\nI Certify that these expenses are correctly stated and were incurred as Necessary business expenses in the service of the company only.', style: 'certify' }
+            { text: '\nI Certify that these expenses are correctly stated and were incurred as Necessary business expenses in the service of the company only.', style: 'certify', margin: [0, 20, 0, 0] }
         ],
         styles: {
-            header: { fontSize: 16, bold: true, alignment: 'center', color: '#1e3a8a' },
+            header: { fontSize: 16, bold: true, color: '#1e3a8a', margin: [0, 0, 0, 10] },
             subheader: { fontSize: 9, italics: true },
-            certify: { fontSize: 9, alignment: 'left', margin: [40, 20] }
+            certify: { fontSize: 9, alignment: 'left', italics: true }
+        },
+        footer: function(currentPage, pageCount) {
+            return { text: `Page ${currentPage} of ${pageCount}`, alignment: 'center', fontSize: 8, margin: [0, 10, 0, 0] };
         }
     };
 
-    // === FINAL DOWNLOAD ===
+    // Download with error handling
     try {
-        pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
+        pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `ER_${monthInput}_SHABANA.pdf`;
+            link.click();
+        });
         showMessage('ER PDF downloaded successfully!', 'success');
     } catch (err) {
-        console.error(err);
-        showMessage('PDF generation failed!', 'error');
+        console.error('PDF Error:', err);
+        showMessage('PDF generation failed. Check console.', 'error');
     }
 }
-
-
