@@ -126,20 +126,38 @@
                 <div class="info-badge">Unmatched records included</div>
             </div>
 
-                        <!-- Tool 5: ER Generator -->
+                                    <!-- Tool 5: ER Generator -->
             <div class="tool-card" data-tool="5">
                 <div class="tool-icon">
                     <i class="fas fa-file-invoice-dollar"></i>
                 </div>
                 <h2>ER Generator</h2>
                 <p class="tool-desc">Generate Travel Expense Report (PDF).</p>
-                
-                <div class="input-group er-inputs">
-                    <input type="month" id="erMonth" required>
-                    <input type="number" id="mobileExp" placeholder="Mobile (max ₹1500)" min="0" max="1500" value="0">
-                    <input type="number" id="courierExp" placeholder="Courier" min="0" value="0">
-                    <button onclick="generateER()" class="action-btn">
-                        <i class="fas fa-download"></i> Generate ER
+
+                <div class="er-form">
+                    <div class="input-row">
+                        <label>ER Month & Year</label>
+                        <input type="month" id="erMonth" required>
+                    </div>
+
+                    <div class="input-row">
+                        <label>Mobile Expense (₹1500 max)</label>
+                        <div class="date-amount">
+                            <input type="date" id="mobileDate">
+                            <input type="number" id="mobileAmount" placeholder="Amount" min="0" max="1500" value="0">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <label>Courier Expense</label>
+                        <div class="date-amount">
+                            <input type="date" id="courierDate">
+                            <input type="number" id="courierAmount" placeholder="Amount" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <button onclick="generateER()" class="action-btn full">
+                        <i class="fas fa-download"></i> Generate ER (PDF)
                     </button>
                 </div>
 
@@ -177,4 +195,5 @@
     </script>
 </body>
 </html>
+
 
