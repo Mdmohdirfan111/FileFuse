@@ -3,149 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataPro Tools - Excel & PDF Utilities</title>
+    <title>Shabana DataPro Tools</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 </head>
 <body>
+    <!-- Background Music Toggle -->
+    <div class="music-toggle">
+        <button id="musicBtn" title="Play Background Music">
+            <i class="fas fa-music"></i>
+        </button>
+        <audio id="bgMusic" loop>
+            <source src="https://assets.mixkit.co/sfx/preview/mixkit-chill-lofi-hip-hop-3099.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
     <div class="container">
-        <header>
-            <h1>DataPro Tools</h1>
-            <p>Advanced Excel & PDF Processing Utilities</p>
+        <!-- Hero Header -->
+        <header class="hero-header">
+            <div class="logo">
+                <i class="fas fa-cube"></i>
+                <h1>Shabana DataPro Tools</h1>
+            </div>
+            <p class="tagline">Smart Excel & PDF Automation | Built by <strong>Shabana Begum</strong></p>
+            <div class="header-decoration"></div>
         </header>
 
-        <!-- Tool 1: File Concatenator -->
-        <div class="tool-section">
-            <div class="tool-header">
-                <h2>1. File Concatenator</h2>
-                <div class="tool-info">ℹ️</div>
+        <!-- Tools Grid -->
+        <div class="tools-grid">
+
+            <!-- Tool 1: File Concatenator -->
+            <div class="tool-card" data-tool="1">
+                <div class="tool-icon">
+                    <i class="fas fa-file-archive"></i>
+                </div>
+                <h2>File Concatenator</h2>
+                <p class="tool-desc">Merge multiple PDF, XLSX & CSV files into one Excel.</p>
+                <div class="upload-area">
+                    <input type="file" id="concatFiles" multiple accept=".xlsx,.xls,.csv,.pdf">
+                    <button onclick="concatenateFiles()" class="action-btn">
+                        <i class="fas fa-compress-arrows-alt"></i> Concatenate
+                    </button>
+                </div>
+                <div class="info-badge">All files must have same headers</div>
             </div>
-            <div class="tool-description">
-                <p><strong>Use:</strong> Merge multiple PDF, XLSX & CSV files into one Excel file.</p>
-                <p><strong>Important:</strong></p>
-                <ul>
-                    <li>All files must have the same column headers</li>
-                    <li>Output will be downloaded as Excel (.xlsx)</li>
-                </ul>
+
+            <!-- Tool 2: Monthly PJP Generator -->
+            <div class="tool-card" data-tool="2">
+                <div class="tool-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h2>Monthly PJP Generator</h2>
+                <p class="tool-desc">Generate monthly route plan from store data.</p>
+                <div class="input-group">
+                    <input type="file" id="storeData" accept=".xlsx,.xls,.csv">
+                    <input type="month" id="pjpMonth">
+                    <button onclick="generatePJP()" class="action-btn">
+                        <i class="fas fa-magic"></i> Generate PJP
+                    </button>
+                </div>
+                <div class="info-badge">Column names must match exactly</div>
             </div>
-            
-            <div class="upload-area">
-                <input type="file" id="concatFiles" multiple accept=".xlsx,.xls,.csv,.pdf">
-                <button onclick="concatenateFiles()">Concatenate Files</button>
+
+            <!-- Tool 3: Floater Incentive Tracker -->
+            <div class="tool-card" data-tool="3">
+                <div class="tool-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>Floater Incentive Tracker</h2>
+                <p class="tool-desc">Auto-schedule floaters with weekly off rotation.</p>
+                <div class="input-group">
+                    <input type="file" id="floaterData" accept=".xlsx,.xls,.csv">
+                    <input type="month" id="floaterMonth">
+                    <button onclick="generateFloaterSchedule()" class="action-btn">
+                        <i class="fas fa-clipboard-list"></i> Generate Schedule
+                    </button>
+                </div>
+                <div class="info-badge">Counter_Code & Store_Name required</div>
             </div>
+
+            <!-- Tool 4: Catalogue XLookup -->
+            <div class="tool-card" data-tool="4">
+                <div class="tool-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h2>Catalogue XLookup</h2>
+                <p class="tool-desc">Match SOH data with catalogue using Description.</p>
+                <div class="input-group dual">
+                    <div class="file-group">
+                        <label><i class="fas fa-book"></i> Catalogue</label>
+                        <input type="file" id="catalogueFile" accept=".xlsx,.xls,.csv">
+                    </div>
+                    <div class="file-group">
+                        <label><i class="fas fa-warehouse"></i> SOH File</label>
+                        <input type="file" id="sohFile" accept=".xlsx,.xls,.csv">
+                    </div>
+                    <button onclick="performLookup()" class="action-btn full">
+                        <i class="fas fa-link"></i> Perform Lookup
+                    </button>
+                </div>
+                <div class="info-badge">Unmatched records included</div>
+            </div>
+
         </div>
 
-        <!-- Tool 2: Monthly PJP Generator -->
-        <div class="tool-section">
-            <div class="tool-header">
-                <h2>2. Monthly PJP Generator</h2>
-                <div class="tool-info">ℹ️</div>
-            </div>
-            <div class="tool-description">
-                <p><strong>Use:</strong> Generate monthly PJP sheet from your route plan data.</p>
-                <p><strong>Input Format Example:</strong></p>
-                <div class="example-table">
-                    <table>
-                        <tr>
-                            <th>Plan</th>
-                            <th>Store 1</th>
-                            <th>Store 2</th>
-                            <th>Store 3</th>
-                            <th>Store 4</th>
-                        </tr>
-                        <tr>
-                            <td>Route-1</td>
-                            <td>HEALTH & GLOW - TOWLICHOWKI, HYD</td>
-                            <td>HEALTH & GLOW - ALKAPURI, HYD</td>
-                            <td>CENTRO - KUKATPALLY, HYD</td>
-                            <td>HEALTH & GLOW - SUJANA FORUM MALL, HYD</td>
-                        </tr>
-                    </table>
-                </div>
-                <p><strong>Important:</strong></p>
-                <ul>
-                    <li>Column names & spelling must match exactly</li>
-                </ul>
-            </div>
-            
-            <div class="input-group">
-                <input type="file" id="storeData" accept=".xlsx,.xls,.csv">
-                <input type="month" id="pjpMonth">
-                <button onclick="generatePJP()">Generate PJP</button>
-            </div>
-        </div>
+        <!-- Message Area -->
+        <div id="message" class="message-box"></div>
 
-        <!-- Tool 3: Floater Incentive Tracker -->
-        <div class="tool-section">
-            <div class="tool-header">
-                <h2>3. Floater Incentive Tracker</h2>
-                <div class="tool-info">ℹ️</div>
-            </div>
-            <div class="tool-description">
-                <p><strong>Use:</strong> Generate incentive tracker for floater counters.</p>
-                <p><strong>Input Format Example:</strong></p>
-                <div class="example-table">
-                    <table>
-                        <tr>
-                            <th>Counter_Code</th>
-                            <th>Store_Name</th>
-                        </tr>
-                        <tr>
-                            <td>CTR001</td>
-                            <td>HEALTH & GLOW - TOWLICHOWKI</td>
-                        </tr>
-                        <tr>
-                            <td>CTR002</td>
-                            <td>HEALTH & GLOW - ALKAPURI</td>
-                        </tr>
-                    </table>
-                </div>
-                <p><strong>Important:</strong></p>
-                <ul>
-                    <li>Column names & spelling must match exactly</li>
-                </ul>
-            </div>
-            
-            <div class="input-group">
-                <input type="file" id="floaterData" accept=".xlsx,.xls,.csv">
-                <input type="month" id="floaterMonth">
-                <button onclick="generateFloaterSchedule()">Generate Schedule</button>
-            </div>
-        </div>
-
-        <!-- Tool 4: Catalogue XLookup -->
-        <div class="tool-section">
-            <div class="tool-header">
-                <h2>4. Catalogue XLookup</h2>
-                <div class="tool-info">ℹ️</div>
-            </div>
-            <div class="tool-description">
-                <p><strong>Use:</strong> Match SOH data with catalogue using Description column.</p>
-                <p><strong>Important:</strong></p>
-                <ul>
-                    <li>Upload both catalogue and SOH files</li>
-                    <li>Matching is done based on "Description" column</li>
-                    <li>Unmatched records will also be included in output</li>
-                </ul>
-            </div>
-            
-            <div class="input-group">
-                <div class="file-input-group">
-                    <label>Catalogue File:</label>
-                    <input type="file" id="catalogueFile" accept=".xlsx,.xls,.csv">
-                </div>
-                <div class="file-input-group">
-                    <label>SOH File:</label>
-                    <input type="file" id="sohFile" accept=".xlsx,.xls,.csv">
-                </div>
-                <button onclick="performLookup()">Perform Lookup</button>
-            </div>
-        </div>
-
-        <div id="message"></div>
+        <!-- Footer -->
+        <footer>
+            <p>Made with <i class="fas fa-heart pulse"></i> by <strong>Shabana Begum</strong> | DataPro Tools v2.0</p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Music Toggle
+        const musicBtn = document.getElementById('musicBtn');
+        const bgMusic = document.getElementById('bgMusic');
+        let isPlaying = false;
+
+        musicBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+            } else {
+                bgMusic.play();
+                musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            isPlaying = !isPlaying;
+        });
+    </script>
 </body>
 </html>
