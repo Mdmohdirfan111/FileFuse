@@ -238,7 +238,7 @@ function performLookup() {
     });
 }
 
-// ==== 5. ER GENERATOR (FIXED - 100% DOWNLOAD) ====
+// ==== 5. ER GENERATOR (FINAL FIX - 100% DOWNLOAD) ====
 function generateER() {
     const monthInput = document.getElementById('erMonth').value;
     const mobileDate = document.getElementById('mobileDate').value;
@@ -303,7 +303,7 @@ function generateER() {
         ]);
     }
 
-    // PDF Definition - ALL VALUES AS OBJECTS
+    // === PDF DEFINITION - NO fillColor FUNCTION ===
     const docDefinition = {
         pageOrientation: 'landscape',
         pageMargins: [20, 60, 20, 60],
@@ -318,37 +318,42 @@ function generateER() {
             { text: '\n' },
             {
                 table: {
+                    headerRows: 4,
                     widths: [50, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
                     body: [
                         [
-                            { text: 'Employee ID:', bold: true }, { text: '874786' },
-                            { text: 'Designation', bold: true }, { text: 'SUPERVISOR' },
-                            { text: 'Claim Period', bold: true }, { text: claimPeriod }
+                            { text: 'Employee ID:', bold: true, fillColor: '#d9e2f3' }, { text: '874786', fillColor: '#d9e2f3' },
+                            { text: 'Designation', bold: true, fillColor: '#d9e2f3' }, { text: 'SUPERVISOR', fillColor: '#d9e2f3' },
+                            { text: 'Claim Period', bold: true, fillColor: '#d9e2f3' }, { text: claimPeriod, fillColor: '#d9e2f3' }
                         ],
                         [
-                            { text: 'Employee Name', bold: true }, { text: 'SHABANA BEGUM' },
-                            { text: 'HQ Town', bold: true }, { text: 'HYDERABAD' },
-                            { text: 'Working days', bold: true }, { text: workingDays.toString() }
+                            { text: 'Employee Name', bold: true, fillColor: '#d9e2f3' }, { text: 'SHABANA BEGUM', fillColor: '#d9e2f3' },
+                            { text: 'HQ Town', bold: true, fillColor: '#d9e2f3' }, { text: 'HYDERABAD', fillColor: '#d9e2f3' },
+                            { text: 'Working days', bold: true, fillColor: '#d9e2f3' }, { text: workingDays.toString(), fillColor: '#d9e2f3' }
                         ],
                         [
-                            { text: 'Total Claim Amount', bold: true, colSpan: 5 }, {}, {}, {}, {},
-                            { text: totalClaim.toString() }
+                            { text: 'Total Claim Amount', bold: true, colSpan: 5, fillColor: '#d9e2f3' }, {}, {}, {}, {},
+                            { text: totalClaim.toString(), fillColor: '#d9e2f3' }
                         ],
                         [
-                            { text: 'Date' }, { text: 'Day' }, { text: 'Market worked' }, { text: 'Claim Type' },
-                            { text: 'Daily Allowance' }, { text: 'Travel Fare' }, { text: 'Local Travel Fare' },
-                            { text: 'Meals (400/day)' }, { text: 'Hotel (1500+tax/Day)' },
-                            { text: 'Mobile Exps. (Rs.1500)' }, { text: 'Courier' }, { text: 'Activity/Others' }
+                            { text: 'Date', fillColor: '#d9e2f3' }, { text: 'Day', fillColor: '#d9e2f3' },
+                            { text: 'Market worked', fillColor: '#d9e2f3' }, { text: 'Claim Type', fillColor: '#d9e2f3' },
+                            { text: 'Daily Allowance', fillColor: '#d9e2f3' }, { text: 'Travel Fare', fillColor: '#d9e2f3' },
+                            { text: 'Local Travel Fare', fillColor: '#d9e2f3' }, { text: 'Meals (400/day)', fillColor: '#d9e2f3' },
+                            { text: 'Hotel (1500+tax/Day)', fillColor: '#d9e2f3' }, { text: 'Mobile Exps. (Rs.1500)', fillColor: '#d9e2f3' },
+                            { text: 'Courier', fillColor: '#d9e2f3' }, { text: 'Activity/Others', fillColor: '#d9e2f3' }
                         ],
-                        ...rows
+                        ...rows.map((row, i) => row.map(cell => ({
+                            ...cell,
+                            fillColor: (i % 2 === 0) ? '#f5f5f5' : null
+                        })))
                     ]
                 },
                 layout: {
                     hLineWidth: () => 0.5,
                     vLineWidth: () => 0.5,
                     hLineColor: () => '#aaa',
-                    vLineColor: () => '#aaa',
-                    fillColor: (i) => (i === 0 || i === 5 ? '#d9e2f3' : (i % 2 === 0 ? '#f5f5f5' : null))
+                    vLineColor: () => '#aaa'
                 }
             },
             { text: '\nI Certify that these expenses are correctly stated and were incurred as Necessary business expenses in the service of the company only.', style: 'certify' }
@@ -360,8 +365,14 @@ function generateER() {
         }
     };
 
-    // FINAL DOWNLOAD
-    pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
-    showMessage('ER PDF downloaded successfully!', 'success');
+    // === FINAL DOWNLOAD ===
+    try {
+        pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
+        showMessage('ER PDF downloaded successfully!', 'success');
+    } catch (err) {
+        console.error(err);
+        showMessage('PDF generation failed!', 'error');
+    }
 }
+
 
