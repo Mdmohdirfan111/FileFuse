@@ -51,10 +51,10 @@
                 <div class="info-badge">All files must have same headers</div>
             </div>
 
-            <!-- Tool 2: Monthly PJP Generator -->
+                        <!-- Tool 2: Monthly PJP Generator -->
             <div class="tool-card" data-tool="2">
                 <div class="tool-icon">
-                    <i class="fas fa-calendar-alt"></i>
+                    Calendar
                 </div>
                 <h2>Monthly PJP Generator</h2>
                 <p class="tool-desc">Generate monthly route plan from store data.</p>
@@ -62,10 +62,73 @@
                     <input type="file" id="storeData" accept=".xlsx,.xls,.csv">
                     <input type="month" id="pjpMonth">
                     <button onclick="generatePJP()" class="action-btn">
-                        <i class="fas fa-magic"></i> Generate PJP
+                        Magic Generate PJP
                     </button>
                 </div>
-                <div class="info-badge">Column names must match exactly</div>
+
+                <!-- Sample Table -->
+                <div class="sample-table">
+                    <p class="sample-title">Input Format Example:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Store 1</th>
+                                <th>Store 2</th>
+                                <th>Store 3</th>
+                                <th>Store 4</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Route-1</td>
+                                <td>HEALTH & GLOW - TOWLICHOWKI, HYD</td>
+                                <td>HEALTH & GLOW - ALKAPURI, HYD</td>
+                                <td>CENTRO - KUKATPALLY, HYD</td>
+                                <td>HEALTH & GLOW - SUJANA FORUM MALL, HYD</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tool 3: Floater Incentive Tracker -->
+            <div class="tool-card" data-tool="3">
+                <div class="tool-icon">
+                    Users
+                </div>
+                <h2>Floater Incentive Tracker</h2>
+                <p class="tool-desc">Auto-schedule floaters with weekly off rotation.</p>
+                <div class="input-group">
+                    <input type="file" id="floaterData" accept=".xlsx,.xls,.csv">
+                    <input type="month" id="floaterMonth">
+                    <button onclick="generateFloaterSchedule()" class="action-btn">
+                        Clipboard Generate Schedule
+                    </button>
+                </div>
+
+                <!-- Sample Table -->
+                <div class="sample-table">
+                    <p class="sample-title">Input Format Example:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Counter_Code</th>
+                                <th>Store_Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CTR001</td>
+                                <td>HEALTH & GLOW - TOWLICHOWKI</td>
+                            </tr>
+                            <tr>
+                                <td>CTR002</td>
+                                <td>HEALTH & GLOW - ALKAPURI</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Tool 3: Floater Incentive Tracker -->
@@ -139,3 +202,4 @@
     </script>
 </body>
 </html>
+
