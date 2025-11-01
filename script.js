@@ -437,5 +437,133 @@ function showMessage(message, type) {
     messageDiv.textContent = message;
     messageDiv.className = type;
 }
+// ... [Previous Tools: concatenateFiles, generatePJP, etc. - unchanged]
+
+// ==== STORES LIST ====
+const STORES = [
+    "HEALTH & GLOW - BANJARA HILLS, HYD",
+    "KATHIAVAR - JUBILEE HILLS, HYD",
+    "HEALTH & GLOW - TOWLICHOWKI, HYD",
+    "HEALTH & GLOW - NIZAMPET, HYD",
+    "SREEJA COSMETICS - AMEERPET, HYD",
+    "SHOPPERS STOP - GVK ROAD, HYD",
+    "KATHIAWAR - GACHIBOWLI, HYD",
+    "SHOPPERS STOP - INORBIT MALL, HYD",
+    "HEALTH & GLOW - GSM MALL, HYD",
+    "HEALTH & GLOW - GVK MALL, HYD",
+    "LIFESTYLE - CYBERABAD, HYD",
+    "BEAUTY & BEYOND - GSM MALL, HYD",
+    "NYKAA ON TREND - BANJARA HILLS, HYD",
+    "GOWTHAM ENTERPRISES - YOUSUFGUDA, HYD",
+    "HEALTH & GLOW - INORBIT MALL, HYD",
+    "HEALTH & GLOW - SUJANA FORUM MALL, HYD"
+];
+
+// ==== ER GENERATOR ====
+function generateER() {
+    const monthInput = document.getElementById('erMonth').value;
+    if (!monthInput) {
+        showMessage('Please select a month!', 'error');
+        return;
+    }
+
+    showMessage('Generating ER PDF...', 'processing');
+
+    const [year, month] = monthInput.split('-').map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const claimPeriod = `01-${String(month).padStart(2, '0')}-${year} to ${daysInMonth}-${String(month).padStart(2, '0')}-${year}`;
+    const workingDays = Array.from({length: daysInMonth}, (_, i) => i + 1)
+        .filter(d => new Date(year, month - 1, d).getDay() !== 0).length;
+
+    let totalClaim = workingDays * 300; // Daily Allowance
+    let mobileExp = 0, courierExp = 0;
+
+    // Prompt for Mobile & Courier
+    const mobileInput = prompt(`Enter Mobile Expense (max ₹1500) for any date in ${monthInput}:`, "0");
+    const courierInput = prompt(`Enter Courier Expense for any date in ${monthInput}:`, "0");
+
+    if (mobileInput && !isNaN(mobileInput)) mobileExp = Math.min(parseInt(mobileInput), 1500);
+    if (courierInput && !isNaN(courierInput)) courierExp = parseInt(courierInput);
+
+    totalClaim += mobileExp + courierExp;
+
+    // Generate rows
+    const rows = [];
+    let lastStore = null;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month - 1, day);
+        const dayOfWeek = date.getDay();
+        const dateStr = `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
+        const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+
+        if (dayOfWeek === 0) {
+            rows.push([dateStr, dayName, 'Week Off', '', 0, 0, 0, 0, 0, 0, 0, 'Week Off']);
+            continue;
+        }
+
+        // Random store (not same as previous)
+        let store;
+        do {
+            store = STORES[Math.floor(Math.random() * STORES.length)];
+        } while (store === lastStore);
+        lastStore = store;
+
+        rows.push([dateStr, dayName, store, '', 300, 0, 0, 0, 0, mobileExp && day === 1 ? mobileExp : 0, courierExp && day === 1 ? courierExp : 0, 'Store Visit']);
+    }
+
+    // PDF Definition
+    const docDefinition = {
+        pageOrientation: 'landscape',
+        pageMargins: [20, 60, 20, 60],
+        header: {
+            margin: [40, 20, 40, 0],
+            columns: [
+                { text: 'Teamlase - Travel Expenses Statement', style: 'header' },
+                { text: '315 Work Avenue Campus, Ascent Building 77, Jyoti Nivas College Rd, Koramangala Industrial Layout, Koramangala, Bengaluru, Karnataka 560095', style: 'subheader', alignment: 'center' }
+            ]
+        },
+        content: [
+            { text: '\n' },
+            {
+                table: {
+                    widths: [50, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
+                    body: [
+                        [{ text: 'Employee ID:', bold: true }, '874786', { text: 'Designation', bold: true }, 'SUPERVISOR', { text: 'Claim Period', bold: true }, claimPeriod],
+                        [{ text: 'Employee Name', bold: true }, 'SHABANA BEGUM', { text: 'HQ Town', bold: true }, 'HYDERABAD', { text: 'Working days', bold: true }, workingDays.toString()],
+                        [{ text: 'Total Claim Amount', bold: true, colSpan: 5 }, {}, {}, {}, {}, totalClaim.toString()],
+                        ['Date', 'Day', 'Market worked', 'Claim Type', 'Daily Allowance', 'Travel Fare', 'Local Travel Fare', 'Meals (400/day)', 'Hotel (1500+tax/Day)', 'Mobile Exps. (Rs.1500)', 'Courier', 'Activity/Others'],
+                        ...rows
+                    ]
+                },
+                layout: {
+                    hLineWidth: () => 0.5,
+                    vLineWidth: () => 0.5,
+                    hLineColor: () => '#aaa',
+                    vLineColor: () => '#aaa',
+                    fillColor: (i) => (i === 0 || i === 5 ? '#d9e2f3' : (i % 2 === 0 ? '#f5f5f5' : null))
+                }
+            },
+            { text: '\nI Certify that these expenses are correctly stated and were incurred as Necessary business expenses in the service of the company only.', style: 'certify' }
+        ],
+        styles: {
+            header: { fontSize: 16, bold: true, alignment: 'center', color: '#1e3a8a' },
+            subheader: { fontSize: 9, italics: true },
+            certify: { fontSize: 9, alignment: 'left', margin: [40, 20] }
+        }
+    };
+
+    pdfMake.createPdf(docDefinition).download(`ER_${monthInput}_SHABANA.pdf`);
+    showMessage('ER PDF generated successfully!', 'success');
+}
+
+// Utility
+function showMessage(msg, type) {
+    const el = document.getElementById('message');
+    el.textContent = msg;
+    el.className = 'message-box show ' + type;
+    setTimeout(() => el.className = 'message-box', 3000);
+}
+
 
 
