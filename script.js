@@ -190,7 +190,7 @@ function generateFloaterSchedule() {
 
 function generateFloaterSchedules(counterData, year, month) {
     const daysInMonth = new Date(year, month, 0).getDate();
-    const counterCodes = extractCounterCodes(counterData);
+    const counterStores = extractCounterStores(counterData);
     
     const floater1 = [];
     const floater2 = [];
@@ -213,15 +213,17 @@ function generateFloaterSchedules(counterData, year, month) {
                 'Date': dateStr,
                 'Day': getDayName(dayOfWeek),
                 'Counter_Code': 'Week Off',
+                'Store_Name': 'Week Off',
                 'Remarks': 'Weekly Off'
             });
         } else {
-            const counter1 = getRandomCounter(counterCodes, usedCountersPerDay[dateStr]);
-            usedCountersPerDay[dateStr].push(counter1);
+            const counterStore1 = getRandomCounterStore(counterStores, usedCountersPerDay[dateStr]);
+            usedCountersPerDay[dateStr].push(counterStore1.counterCode);
             floater1.push({
                 'Date': dateStr,
                 'Day': getDayName(dayOfWeek),
-                'Counter_Code': counter1,
+                'Counter_Code': counterStore1.counterCode,
+                'Store_Name': counterStore1.storeName,
                 'Remarks': 'Store Visit'
             });
         }
@@ -232,15 +234,17 @@ function generateFloaterSchedules(counterData, year, month) {
                 'Date': dateStr,
                 'Day': getDayName(dayOfWeek),
                 'Counter_Code': 'Week Off',
+                'Store_Name': 'Week Off',
                 'Remarks': 'Weekly Off'
             });
         } else {
-            const counter2 = getRandomCounter(counterCodes, usedCountersPerDay[dateStr]);
-            usedCountersPerDay[dateStr].push(counter2);
+            const counterStore2 = getRandomCounterStore(counterStores, usedCountersPerDay[dateStr]);
+            usedCountersPerDay[dateStr].push(counterStore2.counterCode);
             floater2.push({
                 'Date': dateStr,
                 'Day': getDayName(dayOfWeek),
-                'Counter_Code': counter2,
+                'Counter_Code': counterStore2.counterCode,
+                'Store_Name': counterStore2.storeName,
                 'Remarks': 'Store Visit'
             });
         }
@@ -249,19 +253,30 @@ function generateFloaterSchedules(counterData, year, month) {
     return { floater1, floater2 };
 }
 
-function extractCounterCodes(counterData) {
-    // Extract counter codes from data
+function extractCounterStores(counterData) {
+    // Extract counter codes and store names from data
     if (counterData.length > 0) {
-        return counterData.map(row => row.Counter_Code || row.Code || 'COUNTER_' + Math.random().toString(36).substr(2, 5));
+        return counterData.map(row => ({
+            counterCode: row.Counter_Code || row['Counter Code'] || row.Code || 'CTR' + Math.random().toString(36).substr(2, 3).toUpperCase(),
+            storeName: row.Store_Name || row.Store || row['Store Name'] || 'Store ' + Math.random().toString(36).substr(2, 3).toUpperCase()
+        }));
     }
-    return ['CTR001', 'CTR002', 'CTR003', 'CTR004', 'CTR005']; // Default fallback
+    
+    // Default fallback data
+    return [
+        { counterCode: 'CTR001', storeName: 'HEALTH & GLOW - TOWLICHOWKI, HYD' },
+        { counterCode: 'CTR002', storeName: 'HEALTH & GLOW - ALKAPURI, HYD' },
+        { counterCode: 'CTR003', storeName: 'CENTRO - KUKATPALLY, HYD' },
+        { counterCode: 'CTR004', storeName: 'HEALTH & GLOW - SUJANA FORUM MALL, HYD' },
+        { counterCode: 'CTR005', storeName: 'LIFESTYLE - HYDERABAD' }
+    ];
 }
 
-function getRandomCounter(counters, usedCounters) {
-    const available = counters.filter(c => !usedCounters.includes(c));
+function getRandomCounterStore(counterStores, usedCounters) {
+    const available = counterStores.filter(store => !usedCounters.includes(store.counterCode));
     return available.length > 0 
         ? available[Math.floor(Math.random() * available.length)]
-        : 'NO_COUNTER_AVAILABLE';
+        : { counterCode: 'NO_COUNTER', storeName: 'NO STORE AVAILABLE' };
 }
 
 // Tool 4: Catalogue XLookup
@@ -338,3 +353,4 @@ function showMessage(message, type) {
     messageDiv.textContent = message;
     messageDiv.className = type;
 }
+
