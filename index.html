@@ -3,31 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MergeSheets Pro</title>
+    <title>DataPro Tools - Excel & PDF Utilities</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>MergeSheets Pro</h1>
-        <p class="info-message">All files must have the same column headings for proper concatenation.</p>
-        
-        <div class="upload-options">
-            <div class="option">
-                <h3>A) Upload Excel/CSV Files</h3>
-                <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv">
-                <button onclick="uploadFiles()">Concatenate Files</button>
-            </div>
+        <header>
+            <h1>DataPro Tools</h1>
+            <p>Advanced Excel & PDF Processing Utilities</p>
+        </header>
+
+        <!-- Tool 1: File Concatenator -->
+        <div class="tool-section">
+            <h2>1. File Concatenator</h2>
+            <p>Combine Excel, CSV, and PDF files with "Store" column</p>
             
-            <div class="option">
-                <h3>B) Drag Folder Here</h3>
-                <div class="drop-zone" id="dropZone">
-                    <p>Drag and drop folder here</p>
-                </div>
-                <button onclick="uploadFolder()">Concatenate Folder</button>
+            <div class="upload-area">
+                <input type="file" id="concatFiles" multiple accept=".xlsx,.xls,.csv,.pdf">
+                <button onclick="concatenateFiles()">Concatenate Files</button>
             </div>
         </div>
-        
+
+        <!-- Tool 2: Monthly PJP Generator -->
+        <div class="tool-section">
+            <h2>2. Monthly PJP Generator</h2>
+            <p>Generate monthly PJP plans with random store allocation</p>
+            
+            <div class="input-group">
+                <input type="file" id="storeData" accept=".xlsx,.xls,.csv">
+                <input type="month" id="pjpMonth">
+                <button onclick="generatePJP()">Generate PJP</button>
+            </div>
+        </div>
+
+        <!-- Tool 3: Floater Incentive Tracker -->
+        <div class="tool-section">
+            <h2>3. Floater Incentive Tracker</h2>
+            <p>Create random counter schedules for two floaters</p>
+            
+            <div class="input-group">
+                <input type="file" id="floaterData" accept=".xlsx,.xls,.csv">
+                <input type="month" id="floaterMonth">
+                <button onclick="generateFloaterSchedule()">Generate Schedule</button>
+            </div>
+        </div>
+
+        <!-- Tool 4: Catalogue XLookup -->
+        <div class="tool-section">
+            <h2>4. Catalogue XLookup</h2>
+            <p>Match SOH data with catalogue using Description</p>
+            
+            <div class="input-group">
+                <label>Catalogue File:</label>
+                <input type="file" id="catalogueFile" accept=".xlsx,.xls,.csv">
+                <label>SOH File:</label>
+                <input type="file" id="sohFile" accept=".xlsx,.xls,.csv">
+                <button onclick="performLookup()">Perform Lookup</button>
+            </div>
+        </div>
+
         <div id="message"></div>
     </div>
 
