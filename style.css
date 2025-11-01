@@ -433,3 +433,62 @@ footer {
         margin-top: 10px;
     }
 }
+
+/* ==== ER FORM ==== */
+.er-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-row label {
+    font-weight: 600;
+    color: #e91e63;
+    font-size: 0.9rem;
+}
+
+.input-row input[type="month"],
+.input-row input[type="date"],
+.input-row input[type="number"] {
+    padding: 10px 12px;
+    border: 2px dashed #e91e63;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.input-row input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: white;
+}
+
+.date-amount {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.action-btn.full {
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .date-amount {
+        grid-template-columns: 1fr;
+    }
+}
+
+
