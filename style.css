@@ -41,59 +41,147 @@ header p {
 
 .tool-section {
     background: #f8f9fa;
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
+    transition: transform 0.3s ease;
 }
 
-.tool-section h2 {
+.tool-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tool-header h2 {
     color: #2c3e50;
-    margin-bottom: 10px;
     font-size: 1.4em;
 }
 
-.tool-section p {
-    color: #7f8c8d;
-    margin-bottom: 15px;
+.tool-info {
+    background: #667eea;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.tool-description {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.tool-description p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.tool-description ul {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.tool-description li {
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.example-table {
+    margin: 10px 0;
+    overflow-x: auto;
+}
+
+.example-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    background: white;
+}
+
+.example-table th,
+.example-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.example-table th {
+    background: #667eea;
+    color: white;
+    font-weight: bold;
+}
+
+.example-table tr:nth-child(even) {
+    background: #f8f9fa;
 }
 
 .upload-area, .input-group {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
     flex-wrap: wrap;
 }
 
+.file-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 200px;
+}
+
 input[type="file"], input[type="month"] {
-    padding: 8px 12px;
-    border: 2px dashed #bdc3c7;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
     border-radius: 5px;
     background: white;
     flex: 1;
     min-width: 200px;
+    transition: border-color 0.3s;
+}
+
+input[type="file"]:focus, input[type="month"]:focus {
+    outline: none;
+    border-color: #667eea;
 }
 
 button {
     background: #667eea;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
-    transition: background 0.3s;
+    font-weight: 600;
+    transition: all 0.3s;
     white-space: nowrap;
 }
 
 button:hover {
     background: #764ba2;
+    transform: translateY(-1px);
 }
 
 label {
     font-weight: bold;
     color: #2c3e50;
-    min-width: 120px;
+    font-size: 14px;
 }
 
 #message {
@@ -122,17 +210,52 @@ label {
     border: 1px solid #ffeaa7;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
     .container {
         padding: 15px;
     }
     
+    .tool-section {
+        padding: 20px;
+    }
+    
     .upload-area, .input-group {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
     }
     
     input[type="file"], input[type="month"] {
         min-width: unset;
+    }
+    
+    .file-input-group {
+        min-width: unset;
+    }
+    
+    .tool-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .example-table {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .tool-header h2 {
+        font-size: 1.2em;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 13px;
     }
 }
