@@ -491,4 +491,27 @@ footer {
     }
 }
 
+/* Existing style.css content... */
+
+.action-btn.small {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+
+.leave-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.leave-row input, .leave-row select {
+    padding: 10px;
+    border: 2px dashed #e91e63;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    flex: 1;
+}
+
 
