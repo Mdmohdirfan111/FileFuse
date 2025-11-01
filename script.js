@@ -462,8 +462,15 @@ const STORES = [
 // ==== ER GENERATOR ====
 function generateER() {
     const monthInput = document.getElementById('erMonth').value;
+    const mobileExp = parseInt(document.getElementById('mobileExp').value) || 0;
+    const courierExp = parseInt(document.getElementById('courierExp').value) || 0;
+
     if (!monthInput) {
         showMessage('Please select a month!', 'error');
+        return;
+    }
+    if (mobileExp > 1500) {
+        showMessage('Mobile expense cannot exceed ₹1500!', 'error');
         return;
     }
 
@@ -564,6 +571,7 @@ function showMessage(msg, type) {
     el.className = 'message-box show ' + type;
     setTimeout(() => el.className = 'message-box', 3000);
 }
+
 
 
 
