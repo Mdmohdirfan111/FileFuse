@@ -50,7 +50,7 @@
                         <i class="fas fa-compress-arrows-alt"></i> Concatenate
                     </button>
                 </div>
-                <div class="info-badge">File name → "Store" column. Use short store names.</div>
+                <div class="info-badge">File name will be added as "Store" column. Use short store names in file names.</div>
             </div>
 
             <!-- Tool 2: Monthly PJP Generator -->
@@ -67,12 +67,30 @@
                         <i class="fas fa-magic"></i> Generate PJP
                     </button>
                 </div>
+
+                <!-- Sample Table -->
                 <div class="sample-table">
                     <p class="sample-title">Input Format Example:</p>
                     <div class="table-wrapper">
                         <table>
-                            <thead><tr><th>Plan</th><th>Store 1</th><th>Store 2</th><th>Store 3</th><th>Store 4</th></tr></thead>
-                            <tbody><tr><td>Route-1</td><td>Abc Store</td><td>Xyz Mall</td><td>Pqr Center</td><td>Lmn Plaza</td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Store 1</th>
+                                    <th>Store 2</th>
+                                    <th>Store 3</th>
+                                    <th>Store 4</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Route-1</td>
+                                    <td>Abc Store</td>
+                                    <td>Xyz Mall</td>
+                                    <td>Pqr Center</td>
+                                    <td>Lmn Plaza</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -92,12 +110,28 @@
                         <i class="fas fa-clipboard-list"></i> Generate Schedule
                     </button>
                 </div>
+
+                <!-- Sample Table -->
                 <div class="sample-table">
                     <p class="sample-title">Input Format Example:</p>
                     <div class="table-wrapper">
                         <table>
-                            <thead><tr><th>Counter_Code</th><th>Store_Name</th></tr></thead>
-                            <tbody><tr><td>CTR001</td><td>Abc Store</td></tr><tr><td>CTR002</td><td>Xyz Mall</td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th>Counter_Code</th>
+                                    <th>Store_Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CTR001</td>
+                                    <td>Abc Store</td>
+                                </tr>
+                                <tr>
+                                    <td>CTR002</td>
+                                    <td>Xyz Mall</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -126,14 +160,13 @@
                 <div class="info-badge">Unmatched records included</div>
             </div>
 
-                                    <!-- Tool 5: ER Generator -->
+            <!-- Tool 5: ER Generator -->
             <div class="tool-card" data-tool="5">
                 <div class="tool-icon">
                     <i class="fas fa-file-invoice-dollar"></i>
                 </div>
                 <h2>ER Generator</h2>
                 <p class="tool-desc">Generate Travel Expense Report (PDF).</p>
-
                 <div class="er-form">
                     <div class="input-row">
                         <label>ER Month & Year</label>
@@ -156,15 +189,20 @@
                         </div>
                     </div>
 
+                    <div class="input-row">
+                        <label>Leaves/Holidays</label>
+                        <div id="leaves-container"></div>
+                        <button onclick="addLeaveRow()" class="action-btn small">+ Add Date</button>
+                    </div>
+
                     <button onclick="generateER()" class="action-btn full">
                         <i class="fas fa-download"></i> Generate ER (PDF)
                     </button>
                 </div>
-
-                <div class="info-badge">
-                    Daily: ₹300 | Mobile: ₹1500 | Sunday = Week Off
-                </div>
+                <div class="info-badge">Daily: ₹300 | Mobile: ₹1500 | Sunday = Week Off</div>
             </div>
+
+        </div>
 
         <!-- Message Area -->
         <div id="message" class="message-box"></div>
@@ -192,8 +230,24 @@
             }
             isPlaying = !isPlaying;
         });
+
+        // Add Leave Row Function
+        function addLeaveRow() {
+            const container = document.getElementById('leaves-container');
+            const row = document.createElement('div');
+            row.className = 'leave-row';
+            row.innerHTML = `
+                <input type="date" class="leave-date">
+                <select class="leave-type">
+                    <option value="Holiday">Holiday</option>
+                    <option value="Leave">Leave</option>
+                </select>
+            `;
+            container.appendChild(row);
+        }
+
+        // Add first row by default
+        addLeaveRow();
     </script>
 </body>
 </html>
-
-
