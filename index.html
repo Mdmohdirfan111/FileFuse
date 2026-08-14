@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A Special Date Just For You ❤️</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Google Fonts for cute typography -->
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Floating Hearts Background Container -->
+  <!-- Floating Hearts Background -->
   <div class="heart-bg" id="heart-bg"></div>
 
   <main class="card-container">
@@ -21,7 +20,7 @@
       <h1>Will you go on a date with me?</h1>
       <p class="subtext">Think carefully (there's only one right answer 😉)</p>
       
-      <div class="btn-group">
+      <div class="btn-container">
         <button id="btn-yes" class="btn primary-btn" onclick="nextStep(2)">Yes! 🥰</button>
         <button id="btn-no" class="btn secondary-btn">No 😢</button>
       </div>
@@ -82,11 +81,11 @@
       <button class="btn primary-btn next-btn" onclick="validateDateTimeAndNext()">Book Our Slot 💖</button>
     </section>
 
-    <!-- Step 5: Final Confirmation / Ticket -->
+    <!-- Step 5: Final Confirmation -->
     <section class="step" id="step-5">
       <div class="emoji-header">🎉</div>
       <h1 class="script-title">It's a Date!</h1>
-      <p class="subtext">Your special slot has been successfully booked!</p>
+      <p class="subtext">Your slot has been successfully booked!</p>
 
       <div class="summary-card">
         <h3>Our Date Itinerary 🎫</h3>
