@@ -1,265 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataFuse Pro - Smart Excel Automation</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
-    <!-- Favicon Fix (No 404) -->
-    <link rel="icon" href="data:,">
-
-    <!-- External Libraries (FIXED: pdfmake + vfs_fonts.min.js) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Special Date Just For You ❤️</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts for cute typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Background Music Toggle -->
-    <div class="music-toggle">
-        <button id="musicBtn" title="Play Background Music">
-            <i class="fas fa-music"></i>
-        </button>
-        <audio id="bgMusic" loop>
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-chill-lofi-hip-hop-3099.mp3" type="audio/mpeg">
-        </audio>
-    </div>
 
-    <div class="container">
-        <!-- Hero Header -->
-        <header class="hero-header">
-            <div class="logo">
-                <i class="fas fa-cube"></i>
-                <h1>DataFuse Pro</h1>
-            </div>
-            <p class="tagline">Smart Excel & PDF Automation | Built by <strong>Shabana Begum</strong></p>
-            <div class="header-decoration"></div>
-        </header>
+  <!-- Floating Hearts Background Container -->
+  <div class="heart-bg" id="heart-bg"></div>
 
-        <!-- Tools Grid -->
-        <div class="tools-grid">
+  <main class="card-container">
 
-            <!-- Tool 1: File Concatenator -->
-            <div class="tool-card" data-tool="1">
-                <div class="tool-icon">
-                    <i class="fas fa-file-archive"></i>
-                </div>
-                <h2>File Concatenator</h2>
-                <p class="tool-desc">Merge multiple PDF, XLSX & CSV files into one Excel.</p>
-                <div class="upload-area">
-                    <input type="file" id="concatFiles" multiple accept=".xlsx,.xls,.csv,.pdf">
-                    <button onclick="concatenateFiles()" class="action-btn">
-                        <i class="fas fa-compress-arrows-alt"></i> Concatenate
-                    </button>
-                </div>
-                <div class="info-badge">File name will be added as "Store" column. Use short store names in file names.</div>
-            </div>
+    <!-- Step 1: The Question -->
+    <section class="step active" id="step-1">
+      <div class="emoji-header">💌</div>
+      <h1>Will you go on a date with me?</h1>
+      <p class="subtext">Think carefully (there's only one right answer 😉)</p>
+      
+      <div class="btn-group">
+        <button id="btn-yes" class="btn primary-btn" onclick="nextStep(2)">Yes! 🥰</button>
+        <button id="btn-no" class="btn secondary-btn">No 😢</button>
+      </div>
+    </section>
 
-            <!-- Tool 2: Monthly PJP Generator -->
-            <div class="tool-card" data-tool="2">
-                <div class="tool-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h2>Monthly PJP Generator</h2>
-                <p class="tool-desc">Generate monthly route plan from store data.</p>
-                <div class="input-group">
-                    <input type="file" id="storeData" accept=".xlsx,.xls,.csv">
-                    <input type="month" id="pjpMonth">
-                    <button onclick="generatePJP()" class="action-btn">
-                        <i class="fas fa-magic"></i> Generate PJP
-                    </button>
-                </div>
+    <!-- Step 2: Location Selection -->
+    <section class="step" id="step-2">
+      <div class="emoji-header">✨</div>
+      <h1>Yay! That's wonderful!</h1>
+      <p class="subtext">Where in Hyderabad should we go?</p>
+      
+      <div class="options-grid" id="location-grid">
+        <button class="select-chip" onclick="selectOption(this, 'location')">📍 Jubilee Hills</button>
+        <button class="select-chip" onclick="selectOption(this, 'location')">📍 Banjara Hills</button>
+        <button class="select-chip" onclick="selectOption(this, 'location')">📍 Durgam Cheruvu</button>
+        <button class="select-chip" onclick="selectOption(this, 'location')">📍 Gachibowli</button>
+        <button class="select-chip" onclick="selectOption(this, 'location')">📍 Hitec City</button>
+        <button class="select-chip" onclick="selectOption(this, 'location')">📍 Necklace Road</button>
+      </div>
 
-                <!-- Sample Table -->
-                <div class="sample-table">
-                    <p class="sample-title">Input Format Example:</p>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Plan</th>
-                                    <th>Store 1</th>
-                                    <th>Store 2</th>
-                                    <th>Store 3</th>
-                                    <th>Store 4</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Route-1</td>
-                                    <td>Abc Store</td>
-                                    <td>Xyz Mall</td>
-                                    <td>Pqr Center</td>
-                                    <td>Lmn Plaza</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+      <button class="btn primary-btn next-btn" onclick="validateAndNext(2, 3, 'location')">Continue ➜</button>
+    </section>
 
-            <!-- Tool 3: Floater Incentive Tracker -->
-            <div class="tool-card" data-tool="3">
-                <div class="tool-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h2>Floater Incentive Tracker</h2>
-                <p class="tool-desc">Auto-schedule floaters with weekly off rotation.</p>
-                <div class="input-group">
-                    <input type="file" id="floaterData" accept=".xlsx,.xls,.csv">
-                    <input type="month" id="floaterMonth">
-                    <button onclick="generateFloaterSchedule()" class="action-btn">
-                        <i class="fas fa-clipboard-list"></i> Generate Schedule
-                    </button>
-                </div>
+    <!-- Step 3: Food Selection -->
+    <section class="step" id="step-3">
+      <div class="emoji-header">🍕</div>
+      <h1>What are we craving?</h1>
+      <p class="subtext">Pick our special meal for the date</p>
+      
+      <div class="options-grid" id="food-grid">
+        <button class="select-chip" onclick="selectOption(this, 'food')">Hyderabadi Biryani 🍛</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Creamy Alfredo Pasta 🍝</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Woodfired Pizza 🍕</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Authentic Sushi 🍣</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Burgers & Fries 🍔</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Tacos & Nachos 🌮</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Dessert & Waffles 🧇</button>
+        <button class="select-chip" onclick="selectOption(this, 'food')">Coffee & Pastries ☕</button>
+      </div>
 
-                <!-- Sample Table -->
-                <div class="sample-table">
-                    <p class="sample-title">Input Format Example:</p>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Counter_Code</th>
-                                    <th>Store_Name</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>CTR001</td>
-                                    <td>Abc Store</td>
-                                </tr>
-                                <tr>
-                                    <td>CTR002</td>
-                                    <td>Xyz Mall</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+      <button class="btn primary-btn next-btn" onclick="validateAndNext(3, 4, 'food')">Continue ➜</button>
+    </section>
 
-            <!-- Tool 4: Catalogue XLookup -->
-            <div class="tool-card" data-tool="4">
-                <div class="tool-icon">
-                    <i class="fas fa-search"></i>
-                </div>
-                <h2>Catalogue XLookup</h2>
-                <p class="tool-desc">Match SOH data with catalogue using Description.</p>
-                <div class="input-group dual">
-                    <div class="file-group">
-                        <label><i class="fas fa-book"></i> Catalogue</label>
-                        <input type="file" id="catalogueFile" accept=".xlsx,.xls,.csv">
-                    </div>
-                    <div class="file-group">
-                        <label><i class="fas fa-warehouse"></i> SOH File</label>
-                        <input type="file" id="sohFile" accept=".xlsx,.xls,.csv">
-                    </div>
-                    <button onclick="performLookup()" class="action-btn full">
-                        <i class="fas fa-link"></i> Perform Lookup
-                    </button>
-                </div>
-                <div class="info-badge">Unmatched records included</div>
-            </div>
+    <!-- Step 4: Date & Time Picker -->
+    <section class="step" id="step-4">
+      <div class="emoji-header">📅</div>
+      <h1>When are you free?</h1>
+      <p class="subtext">Pick a date & time for our outing</p>
 
-            <!-- Tool 5: ER Generator -->
-            <div class="tool-card" data-tool="5">
-                <div class="tool-icon">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                </div>
-                <h2>ER Generator</h2>
-                <p class="tool-desc">Generate Travel Expense Report (PDF).</p>
-                <div class="er-form">
-                    <div class="input-row">
-                        <label>ER Month & Year</label>
-                        <input type="month" id="erMonth" required>
-                    </div>
+      <div class="picker-container">
+        <label for="date-input">Pick a Date:</label>
+        <input type="date" id="date-input" class="input-field" />
 
-                    <div class="input-row">
-                        <label>Mobile Expense (₹1500 max)</label>
-                        <div class="date-amount">
-                            <input type="date" id="mobileDate">
-                            <input type="number" id="mobileAmount" placeholder="Amount" min="0" max="1500" value="0">
-                        </div>
-                    </div>
+        <label for="time-input">Pick a Time:</label>
+        <input type="time" id="time-input" class="input-field" />
+      </div>
 
-                    <div class="input-row">
-                        <label>Courier Expense</label>
-                        <div class="date-amount">
-                            <input type="date" id="courierDate">
-                            <input type="number" id="courierAmount" placeholder="Amount" min="0" value="0">
-                        </div>
-                    </div>
+      <button class="btn primary-btn next-btn" onclick="validateDateTimeAndNext()">Book Our Slot 💖</button>
+    </section>
 
-                    <div class="input-row">
-                        <label>Leaves/Holidays</label>
-                        <div id="leaves-container"></div>
-                        <button onclick="addLeaveRow()" class="action-btn small">+ Add Date</button>
-                    </div>
+    <!-- Step 5: Final Confirmation / Ticket -->
+    <section class="step" id="step-5">
+      <div class="emoji-header">🎉</div>
+      <h1 class="script-title">It's a Date!</h1>
+      <p class="subtext">Your special slot has been successfully booked!</p>
 
-                    <button onclick="generateER()" class="action-btn full">
-                        <i class="fas fa-download"></i> Generate ER (PDF)
-                    </button>
-                </div>
-                <div class="info-badge">Daily: ₹300 | Mobile: ₹1500 | Sunday = Week Off</div>
-            </div>
+      <div class="summary-card">
+        <h3>Our Date Itinerary 🎫</h3>
+        <p><strong>Place:</strong> <span id="summary-location">-</span></p>
+        <p><strong>Cuisine:</strong> <span id="summary-food">-</span></p>
+        <p><strong>Date:</strong> <span id="summary-date">-</span></p>
+        <p><strong>Time:</strong> <span id="summary-time">-</span></p>
+      </div>
 
-        </div>
+      <p class="footer-note">Can't wait to see you! ❤️</p>
+    </section>
 
-        <!-- Message Area -->
-        <div id="message" class="message-box"></div>
+  </main>
 
-        <!-- Footer -->
-        <footer>
-            <p>Made with <i class="fas fa-heart pulse"></i> by <strong>Shabana Begum</strong> | DataFuse Pro v2.0</p>
-        </footer>
-    </div>
-
-    <!-- Modular Scripts (utils first!) -->
-    <script src="js/utils.js"></script>
-    <script src="js/file-concatenator.js"></script>
-    <script src="js/pjp-generator.js"></script>
-    <script src="js/floater-tracker.js"></script>
-    <script src="js/catalogue-xlookup.js"></script>
-    <script src="js/er-generator.js"></script>
-
-    <!-- Inline Scripts -->
-    <script>
-        // Music Toggle
-        const musicBtn = document.getElementById('musicBtn');
-        const bgMusic = document.getElementById('bgMusic');
-        let isPlaying = false;
-
-        musicBtn.addEventListener('click', () => {
-            if (isPlaying) {
-                bgMusic.pause();
-                musicBtn.innerHTML = '<i class="fas fa-music"></i>';
-            } else {
-                bgMusic.play();
-                musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            }
-            isPlaying = !isPlaying;
-        });
-
-        // Add Leave Row
-        function addLeaveRow() {
-            const container = document.getElementById('leaves-container');
-            const row = document.createElement('div');
-            row.className = 'leave-row';
-            row.innerHTML = `
-                <input type="date" class="leave-date">
-                <select class="leave-type">
-                    <option value="Holiday">Holiday</option>
-                    <option value="Leave">Leave</option>
-                </select>
-            `;
-            container.appendChild(row);
-        }
-
-        // First row
-        addLeaveRow();
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
